@@ -1,0 +1,6 @@
+{
+  "name": "TechinEjigbo Examination Portal",
+  "description": "The official online testing and certification portal for TechinEjigbo, featuring comprehensive timed examinations for Basic Canva Graphic Design and Basic HTML Web Development.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

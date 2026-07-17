@@ -76,3 +76,18 @@ npm run build --workspace=admin-app
 *   **Animations**: [Motion](https://motion.dev/)
 *   **Language**: [TypeScript](https://www.typescriptlang.org/)
 *   **Package Management**: npm workspaces
+
+## Vercel Deployment
+
+This monorepo is fully prepared to be hosted on Vercel. Since it uses `npm workspaces`, Vercel handles the dependency installations automatically.
+
+To deploy the applications:
+
+1. Create a new Project in Vercel and import this repository.
+2. Under **Root Directory**, click **Edit** and select the app you want to deploy (e.g., `apps/public-site`).
+3. Vercel will automatically detect the **Next.js** framework and configure the build settings.
+4. Add your Firebase environment variables to the Vercel Project settings.
+5. Click **Deploy**.
+
+Repeat these steps for each application (`admin-app`, `public-site`, `student-portal`) to deploy them as separate Vercel projects.
+

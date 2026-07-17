@@ -41,7 +41,7 @@ export default function ExamsPage() {
     email: trainee.email,
     phone: trainee.phone,
     school: trainee.school,
-    course: trainee.course || (trainee.program === 'Graphic Design' ? 'graphic-design' : 'web-development')
+    course: trainee.course || (trainee.program === 'graphic-design' ? 'graphic-design' : 'web-development')
   } : null;
 
   const handleStartExam = () => {

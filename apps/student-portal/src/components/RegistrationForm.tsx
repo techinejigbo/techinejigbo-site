@@ -44,6 +44,7 @@ export default function RegistrationForm({ onRegister }: RegistrationFormProps) 
         fullName: `${traineeData.firstName} ${traineeData.lastName}`,
         email: traineeData.email,
         phone: traineeData.phone,
+        school: traineeData.school,
         course: traineeData.program as 'web-development' | 'graphic-design',
       });
     } catch (err: any) {

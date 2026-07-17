@@ -97,7 +97,7 @@ export const getMaterials = async (course: 'web-development' | 'graphic-design')
     const snap = await getDocs(q);
     const results: Material[] = [];
     snap.forEach(doc => {
-      results.push({ id: doc.id, ...doc.data() as Material });
+      results.push({ ...(doc.data() as Omit<Material, 'id'>), id: doc.id });
     });
     return results.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
   } catch (error) {

@@ -1,10 +1,7 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  transpilePackages: ["@techinejigbo/firebase"],
-  eslint: {
-    ignoreDuringBuilds: true,
-  },
+  transpilePackages: ["@techinejigbo/firebase"]
 };
 
 export default nextConfig;

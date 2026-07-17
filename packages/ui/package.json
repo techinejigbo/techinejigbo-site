@@ -1,0 +1,18 @@
+{
+  "name": "@techinejigbo/ui",
+  "version": "0.0.0",
+  "private": true,
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "dependencies": {
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "lucide-react": "^0.546.0"
+  },
+  "scripts": {
+    "build": "echo 'No build needed for UI package'"
+  },
+  "devDependencies": {
+    "typescript": "^5.0.0"
+  }
+}

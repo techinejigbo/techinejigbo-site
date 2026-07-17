@@ -1,0 +1,15 @@
+{
+  "name": "@techinejigbo/firebase",
+  "version": "0.0.0",
+  "private": true,
+  "main": "./src/index.ts",
+  "scripts": {
+    "build": "echo 'No build needed for firebase package'"
+  },
+  "dependencies": {
+    "firebase": "^10.12.2"
+  },
+  "devDependencies": {
+    "typescript": "^5.0.0"
+  }
+}

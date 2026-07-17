@@ -1,0 +1,74 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+  
+    // Helper function to check if the user is an admin
+    function isAdmin() {
+      return request.auth != null && exists(/databases/$(database)/documents/admins/$(request.auth.uid));
+    }
+
+    // Admins Collection
+    // Only existing admins can read/update/delete.
+    // Newly registered users can CREATE their admin record ONLY if their email is in allowed_admins.
+    match /admins/{adminId} {
+      allow read: if isAdmin() || request.auth.uid == adminId;
+      allow update, delete: if isAdmin();
+      allow create: if request.auth != null 
+                    && request.auth.uid == adminId 
+                    && request.auth.token.email != null 
+                    && exists(/databases/$(database)/documents/allowed_admins/$(request.auth.token.email));
+    }
+
+    // Trainees Collection
+    match /trainees/{traineeId} {
+      // Trainees can read and create their own profile. Admins can read/write all.
+      allow read: if request.auth.uid == traineeId || isAdmin();
+      allow create: if request.auth.uid == traineeId;
+      allow update, delete: if isAdmin();
+    }
+
+    // Exams Collection (Storing completed exam scores)
+    match /exams/{examId} {
+      // Trainees can read their own exams and create new ones. Admins can read all.
+      allow read: if (request.auth != null && resource.data.traineeId == request.auth.uid) || isAdmin();
+      // Only allow creation if the traineeId matches the logged in user
+      allow create: if request.auth != null && request.resource.data.traineeId == request.auth.uid;
+      allow update, delete: if isAdmin();
+    }
+
+    // Settings Collection (Global app settings, like exam toggle)
+    match /settings/{document=**} {
+      // Anyone logged in can read settings, only admins can write
+      allow read: if request.auth != null;
+      allow write: if isAdmin();
+    }
+
+    // Announcements Collection
+    match /announcements/{announcementId} {
+      allow read: if request.auth != null;
+      allow write: if isAdmin();
+    }
+
+    // Materials Collection (PDF links, Video embeds)
+    match /materials/{materialId} {
+      allow read: if request.auth != null;
+      allow write: if isAdmin();
+    }
+
+    match /questions/{questionId} {
+      allow read: if request.auth != null;
+      allow write: if isAdmin();
+    }
+    
+    match /allowed_admins/{email} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+    
+    match /courses/{courseId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+  }
+}

@@ -1,10 +1,42 @@
 "use client";
 
 import React, { useState } from 'react';
-import { Heart, Laptop, Users, Building2, Send } from 'lucide-react';
+import { Heart, Laptop, Users, Building2, Send, CheckCircle2 } from 'lucide-react';
+import { saveVolunteer } from '@techinejigbo/firebase/src/firestore';
 
 export default function GetInvolvedPage() {
   const [activeTab, setActiveTab] = useState<'sponsor' | 'volunteer'>('sponsor');
+  
+  const [formData, setFormData] = useState({
+    firstName: '',
+    lastName: '',
+    email: '',
+    expertise: 'Web Development',
+    linkedin: ''
+  });
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isSubmitted, setIsSubmitted] = useState(false);
+  const [error, setError] = useState('');
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+    setError('');
+    
+    try {
+      await saveVolunteer({
+        ...formData,
+        createdAt: new Date().toISOString()
+      });
+      setIsSubmitted(true);
+      setFormData({ firstName: '', lastName: '', email: '', expertise: 'Web Development', linkedin: '' });
+    } catch (err) {
+      console.error(err);
+      setError('Failed to submit application. Please try again later.');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -109,39 +141,91 @@ export default function GetInvolvedPage() {
                   </div>
                   <div className="p-10 lg:p-14">
                     <h3 className="text-2xl font-bold font-display text-brand-dark mb-6">Volunteer Application</h3>
-                    <form className="space-y-4">
-                      <div className="grid grid-cols-2 gap-4">
-                        <div>
-                          <label className="block text-sm font-medium text-slate-700 mb-1">First Name</label>
-                          <input type="text" className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-brand-orange focus:border-transparent outline-none transition-all" placeholder="John" />
+                    {isSubmitted ? (
+                      <div className="bg-emerald-50 border border-emerald-200 text-emerald-800 p-8 rounded-2xl flex flex-col items-center justify-center text-center h-full min-h-[300px]">
+                        <CheckCircle2 size={48} className="text-emerald-500 mb-4" />
+                        <h4 className="text-xl font-bold mb-2">Application Received!</h4>
+                        <p className="text-emerald-700">Thank you for volunteering. We will review your application and get back to you shortly.</p>
+                        <button 
+                          onClick={() => setIsSubmitted(false)}
+                          className="mt-6 text-sm font-semibold text-emerald-700 hover:text-emerald-900 underline"
+                        >
+                          Submit another application
+                        </button>
+                      </div>
+                    ) : (
+                      <form className="space-y-4" onSubmit={handleSubmit}>
+                        <div className="grid grid-cols-2 gap-4">
+                          <div>
+                            <label className="block text-sm font-medium text-slate-700 mb-1">First Name</label>
+                            <input 
+                              type="text" 
+                              required
+                              value={formData.firstName}
+                              onChange={(e) => setFormData({...formData, firstName: e.target.value})}
+                              className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-brand-orange focus:border-transparent outline-none transition-all" 
+                              placeholder="John" 
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-sm font-medium text-slate-700 mb-1">Last Name</label>
+                            <input 
+                              type="text" 
+                              required
+                              value={formData.lastName}
+                              onChange={(e) => setFormData({...formData, lastName: e.target.value})}
+                              className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-brand-orange focus:border-transparent outline-none transition-all" 
+                              placeholder="Doe" 
+                            />
+                          </div>
                         </div>
                         <div>
-                          <label className="block text-sm font-medium text-slate-700 mb-1">Last Name</label>
-                          <input type="text" className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-brand-orange focus:border-transparent outline-none transition-all" placeholder="Doe" />
+                          <label className="block text-sm font-medium text-slate-700 mb-1">Email Address</label>
+                          <input 
+                            type="email" 
+                            required
+                            value={formData.email}
+                            onChange={(e) => setFormData({...formData, email: e.target.value})}
+                            className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-brand-orange focus:border-transparent outline-none transition-all" 
+                            placeholder="john@example.com" 
+                          />
                         </div>
-                      </div>
-                      <div>
-                        <label className="block text-sm font-medium text-slate-700 mb-1">Email Address</label>
-                        <input type="email" className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-brand-orange focus:border-transparent outline-none transition-all" placeholder="john@example.com" />
-                      </div>
-                      <div>
-                        <label className="block text-sm font-medium text-slate-700 mb-1">Area of Expertise</label>
-                        <select className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-brand-orange focus:border-transparent outline-none transition-all bg-white">
-                          <option>Web Development</option>
-                          <option>Graphic Design</option>
-                          <option>Mentorship / Career</option>
-                          <option>Operations / Other</option>
-                        </select>
-                      </div>
-                      <div>
-                        <label className="block text-sm font-medium text-slate-700 mb-1">LinkedIn / Portfolio URL</label>
-                        <input type="url" className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-brand-orange focus:border-transparent outline-none transition-all" placeholder="https://" />
-                      </div>
-                      <button type="button" className="w-full bg-brand-orange text-white py-4 rounded-xl font-semibold hover:bg-brand-orange-dark transition-colors flex justify-center items-center gap-2 mt-4">
-                        Submit Application <Send size={18} />
-                      </button>
-                      <p className="text-xs text-slate-500 text-center mt-4">This form is currently a placeholder for the MVP.</p>
-                    </form>
+                        <div>
+                          <label className="block text-sm font-medium text-slate-700 mb-1">Area of Expertise</label>
+                          <select 
+                            value={formData.expertise}
+                            onChange={(e) => setFormData({...formData, expertise: e.target.value})}
+                            className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-brand-orange focus:border-transparent outline-none transition-all bg-white"
+                          >
+                            <option value="Web Development">Web Development</option>
+                            <option value="Graphic Design">Graphic Design</option>
+                            <option value="Mentorship / Career">Mentorship / Career</option>
+                            <option value="Operations / Other">Operations / Other</option>
+                          </select>
+                        </div>
+                        <div>
+                          <label className="block text-sm font-medium text-slate-700 mb-1">LinkedIn / Portfolio URL</label>
+                          <input 
+                            type="url" 
+                            value={formData.linkedin}
+                            onChange={(e) => setFormData({...formData, linkedin: e.target.value})}
+                            className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-brand-orange focus:border-transparent outline-none transition-all" 
+                            placeholder="https://" 
+                          />
+                        </div>
+
+                        {error && <p className="text-red-500 text-sm">{error}</p>}
+
+                        <button 
+                          type="submit" 
+                          disabled={isSubmitting}
+                          className="w-full bg-brand-orange text-white py-4 rounded-xl font-semibold hover:bg-brand-orange-dark transition-colors flex justify-center items-center gap-2 mt-4 disabled:opacity-70"
+                        >
+                          {isSubmitting ? 'Submitting...' : 'Submit Application'}
+                          {!isSubmitting && <Send size={18} />}
+                        </button>
+                      </form>
+                    )}
                   </div>
                 </div>
               </div>

@@ -1,47 +1,71 @@
 "use client";
 
 import React, { useEffect, useState } from 'react';
-import { getAllExams, getAllTrainees, getGlobalSettings, updateGlobalSettings, ExamRecord, TraineeData, GlobalSettings } from '@techinejigbo/firebase/src/firestore';
-import { Search, Lock, Unlock } from 'lucide-react';
+import { subscribeToExams, subscribeToTrainees, getGlobalSettings, updateGlobalSettings, ExamRecord, TraineeData, GlobalSettings, getAllCoursesFromQuestions } from '@techinejigbo/firebase/src/firestore';
+import { Search, Lock, Unlock, ChevronLeft, ChevronRight } from 'lucide-react';
+import toast from 'react-hot-toast';
+
+const ITEMS_PER_PAGE = 20;
 
 export default function ExamsPage() {
   const [exams, setExams] = useState<ExamRecord[]>([]);
   const [trainees, setTrainees] = useState<Record<string, TraineeData>>({});
-  const [settings, setSettings] = useState<GlobalSettings>({ isExamOpen: false });
+  const [settings, setSettings] = useState<GlobalSettings>({ isExamOpen: false, openPrograms: {} });
+  const [courses, setCourses] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
 
   useEffect(() => {
-    async function loadData() {
-      const [fetchedExams, fetchedTrainees, fetchedSettings] = await Promise.all([
-        getAllExams(),
-        getAllTrainees(),
-        getGlobalSettings()
+    let examsLoaded = false;
+    let traineesLoaded = false;
+    
+    async function init() {
+      const [fetchedSettings, fetchedCourses] = await Promise.all([
+        getGlobalSettings(),
+        getAllCoursesFromQuestions()
       ]);
+      setSettings({ isExamOpen: false, openPrograms: {}, ...fetchedSettings });
+      setCourses(fetchedCourses);
+    }
+    
+    init();
+
+    const unsubExams = subscribeToExams((fetchedExams) => {
       setExams(fetchedExams);
-      setSettings(fetchedSettings);
-      
+      examsLoaded = true;
+      if (traineesLoaded) setLoading(false);
+    });
+
+    const unsubTrainees = subscribeToTrainees((fetchedTrainees) => {
       const traineeMap: Record<string, TraineeData> = {};
       fetchedTrainees.forEach(t => traineeMap[t.uid] = t);
       setTrainees(traineeMap);
-      
-      setLoading(false);
-    }
-    loadData();
+      traineesLoaded = true;
+      if (examsLoaded) setLoading(false);
+    });
+
+    return () => {
+      unsubExams();
+      unsubTrainees();
+    };
   }, []);
 
-  const handleToggleExam = async () => {
-    const newStatus = !settings.isExamOpen;
+  const handleToggleExam = async (courseId: string) => {
+    const isCurrentlyOpen = settings.openPrograms?.[courseId] || false;
+    const newStatus = !isCurrentlyOpen;
     const confirmMessage = newStatus 
-      ? "Are you sure you want to OPEN the exam portal? All active trainees will be able to start their final exams."
-      : "Are you sure you want to CLOSE the exam portal? Trainees currently taking the exam might be interrupted or unable to submit if you close it forcefully.";
+      ? `Are you sure you want to OPEN the exam portal for ${courseId}?`
+      : `Are you sure you want to CLOSE the exam portal for ${courseId}?`;
       
     if (window.confirm(confirmMessage)) {
       try {
-        await updateGlobalSettings({ isExamOpen: newStatus });
-        setSettings(prev => ({ ...prev, isExamOpen: newStatus }));
+        const newOpenPrograms = { ...settings.openPrograms, [courseId]: newStatus };
+        await updateGlobalSettings({ openPrograms: newOpenPrograms });
+        setSettings(prev => ({ ...prev, openPrograms: newOpenPrograms }));
+        toast.success(`Exam portal for ${courseId} is now ${newStatus ? 'OPEN' : 'CLOSED'}`);
       } catch (err) {
-        alert("Failed to toggle exam portal.");
+        toast.error("Failed to toggle exam portal.");
       }
     }
   };
@@ -54,40 +78,47 @@ export default function ExamsPage() {
     return nameMatch || courseMatch;
   });
 
+  const totalPages = Math.ceil(filteredExams.length / ITEMS_PER_PAGE);
+  const paginatedExams = filteredExams.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE);
+
   return (
     <div className="space-y-6">
       
-      {/* Global Exam Toggle Widget */}
-      <div className={`p-6 rounded-xl shadow-sm border flex flex-col md:flex-row items-center justify-between gap-6 transition-colors ${
-        settings.isExamOpen ? 'bg-brand-orange-light/10 border-brand-orange/30' : 'bg-white border-slate-200'
-      }`}>
-        <div className="flex items-center gap-4">
-          <div className={`w-12 h-12 rounded-full flex items-center justify-center shrink-0 ${
-            settings.isExamOpen ? 'bg-brand-orange text-white animate-pulse' : 'bg-slate-100 text-slate-500'
-          }`}>
-            {settings.isExamOpen ? <Unlock size={24} /> : <Lock size={24} />}
-          </div>
-          <div>
-            <h2 className="text-xl font-display font-bold text-slate-900">
-              Exam Portal is {settings.isExamOpen ? 'OPEN' : 'CLOSED'}
-            </h2>
-            <p className="text-sm text-slate-500 mt-1">
-              {settings.isExamOpen 
-                ? 'Trainees can currently access and submit their final certification exams.' 
-                : 'Trainees cannot access the final exam right now.'}
-            </p>
-          </div>
-        </div>
-        <button 
-          onClick={handleToggleExam}
-          className={`px-6 py-3 rounded-lg font-bold font-mono uppercase tracking-wider text-sm transition-all shadow-sm ${
-            settings.isExamOpen 
-              ? 'bg-white text-rose-600 border border-rose-200 hover:bg-rose-50' 
-              : 'bg-brand-orange text-white hover:bg-brand-orange-dark border border-brand-orange'
-          }`}
-        >
-          {settings.isExamOpen ? 'Lock Portal' : 'Open Portal Now'}
-        </button>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {courses.map(course => {
+          const isOpen = settings.openPrograms?.[course] || false;
+          return (
+            <div key={course} className={`p-6 rounded-xl shadow-sm border flex flex-col items-start justify-between gap-4 transition-colors ${
+              isOpen ? 'bg-brand-orange-light/10 border-brand-orange/30' : 'bg-white border-slate-200'
+            }`}>
+              <div className="flex items-center gap-4 w-full">
+                <div className={`w-12 h-12 rounded-full flex items-center justify-center shrink-0 ${
+                  isOpen ? 'bg-brand-orange text-white animate-pulse' : 'bg-slate-100 text-slate-500'
+                }`}>
+                  {isOpen ? <Unlock size={24} /> : <Lock size={24} />}
+                </div>
+                <div className="flex-1">
+                  <h2 className="text-lg font-display font-bold text-slate-900 capitalize">
+                    {course.replace('-', ' ')}
+                  </h2>
+                  <p className="text-sm text-slate-500 mt-1">
+                    {isOpen ? 'Portal OPEN' : 'Portal CLOSED'}
+                  </p>
+                </div>
+                <button 
+                  onClick={() => handleToggleExam(course)}
+                  className={`px-4 py-2 rounded-lg font-bold font-mono uppercase tracking-wider text-xs transition-all shadow-sm ${
+                    isOpen 
+                      ? 'bg-white text-rose-600 border border-rose-200 hover:bg-rose-50' 
+                      : 'bg-brand-orange text-white hover:bg-brand-orange-dark border border-brand-orange'
+                  }`}
+                >
+                  {isOpen ? 'Lock' : 'Open'}
+                </button>
+              </div>
+            </div>
+          );
+        })}
       </div>
 
       {/* Exam Results Table */}
@@ -102,7 +133,7 @@ export default function ExamsPage() {
               type="text"
               placeholder="Search by name or program..."
               value={search}
-              onChange={(e) => setSearch(e.target.value)}
+              onChange={(e) => { setSearch(e.target.value); setCurrentPage(1); }}
               className="pl-10 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:outline-none focus:border-brand-orange focus:ring-1 focus:ring-brand-orange w-full sm:w-72"
             />
           </div>
@@ -124,12 +155,12 @@ export default function ExamsPage() {
                 <tr>
                   <td colSpan={5} className="px-6 py-10 text-center text-slate-400">Loading data...</td>
                 </tr>
-              ) : filteredExams.length === 0 ? (
+              ) : paginatedExams.length === 0 ? (
                 <tr>
                   <td colSpan={5} className="px-6 py-10 text-center text-slate-400">No exam records found.</td>
                 </tr>
               ) : (
-                filteredExams.map(exam => {
+                paginatedExams.map(exam => {
                   const trainee = trainees[exam.traineeId];
                   const passed = exam.score >= 80;
                   
@@ -170,6 +201,31 @@ export default function ExamsPage() {
             </tbody>
           </table>
         </div>
+        
+        {totalPages > 1 && (
+          <div className="p-4 border-t border-slate-200 flex items-center justify-between">
+            <span className="text-sm text-slate-500">
+              Showing {(currentPage - 1) * ITEMS_PER_PAGE + 1} to {Math.min(currentPage * ITEMS_PER_PAGE, filteredExams.length)} of {filteredExams.length} results
+            </span>
+            <div className="flex items-center gap-2">
+              <button 
+                onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                disabled={currentPage === 1}
+                className="p-2 rounded-lg border border-slate-200 text-slate-500 hover:bg-slate-50 disabled:opacity-50 transition-colors"
+              >
+                <ChevronLeft size={16} />
+              </button>
+              <span className="text-sm font-semibold px-2">Page {currentPage} of {totalPages}</span>
+              <button 
+                onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                disabled={currentPage === totalPages}
+                className="p-2 rounded-lg border border-slate-200 text-slate-500 hover:bg-slate-50 disabled:opacity-50 transition-colors"
+              >
+                <ChevronRight size={16} />
+              </button>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

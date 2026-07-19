@@ -1,10 +1,11 @@
 "use client";
 
 import React, { useEffect, useState } from 'react';
-import { getQuestions, saveQuestion, deleteQuestion, QuestionData } from '@techinejigbo/firebase/src/firestore';
+import { subscribeToQuestions, saveQuestion, deleteQuestion, QuestionData, getAllCoursesFromQuestions } from '@techinejigbo/firebase/src/firestore';
 import { Database, Plus, Edit2, Trash2, Save, X, BookOpen } from 'lucide-react';
 // @ts-ignore
 import { canvaQuestions, htmlQuestions } from '../../../questions';
+import toast from 'react-hot-toast';
 
 export default function QuestionsPage() {
   const [questions, setQuestions] = useState<QuestionData[]>([]);
@@ -12,28 +13,41 @@ export default function QuestionsPage() {
   const [activeCourse, setActiveCourse] = useState('graphic-design');
   const [allCourses, setAllCourses] = useState<string[]>(['graphic-design', 'web-development']);
   const [isSeeding, setIsSeeding] = useState(false);
+  const [isAddingCourse, setIsAddingCourse] = useState(false);
+  const [newCourseId, setNewCourseId] = useState('');
   
   const [editingQuestion, setEditingQuestion] = useState<Partial<QuestionData> | null>(null);
 
   useEffect(() => {
-    loadAllQuestions();
-  }, []);
-
-  async function loadAllQuestions() {
-    setLoading(true);
-    // Since we don't have a getAllQuestions helper, we'll fetch known ones. 
-    // Wait, the user wants to add new courses dynamically.
-    // If we only have getQuestions(courseId), we can't easily fetch ALL questions across all courses 
-    // unless we know the courseIds.
-    // Let's iterate through the known courses.
-    const allQ: QuestionData[] = [];
-    for (const course of allCourses) {
-      const q = await getQuestions(course);
-      allQ.push(...q);
+    let unsubs: (() => void)[] = [];
+    
+    async function init() {
+      setLoading(true);
+      const courses = await getAllCoursesFromQuestions();
+      setAllCourses(courses);
+      
+      if (!courses.includes(activeCourse) && courses.length > 0) {
+        setActiveCourse(courses[0]);
+      }
+      
+      courses.forEach(course => {
+        const unsub = subscribeToQuestions(course, (qData) => {
+          setQuestions(prev => {
+            const filtered = prev.filter(q => q.courseId !== course);
+            return [...filtered, ...qData];
+          });
+        });
+        unsubs.push(unsub);
+      });
+      setLoading(false);
     }
-    setQuestions(allQ);
-    setLoading(false);
-  }
+    
+    init();
+    
+    return () => {
+      unsubs.forEach(unsub => unsub());
+    };
+  }, []);
 
   const handleSeed = async () => {
     if (!window.confirm("Are you sure you want to seed the hardcoded questions to Firestore? This might create duplicates if already seeded.")) return;
@@ -55,22 +69,42 @@ export default function QuestionsPage() {
           correctAnswer: q.correctAnswer
         });
       }
-      alert("Seeding complete!");
-      loadAllQuestions();
+      toast.success("Seeding complete!");
     } catch (e) {
-      alert("Error seeding questions.");
+      toast.error("Error seeding questions.");
     }
     setIsSeeding(false);
   };
 
-  const handleAddNewCourse = () => {
-    const newCourse = window.prompt("Enter the new course ID (e.g., 'python', 'cybersecurity'):");
-    if (newCourse && newCourse.trim() !== '') {
-      const formatted = newCourse.trim().toLowerCase();
+  const handleCleanup = async () => {
+    if (!window.confirm("Consolidate 'canva' and 'html' courses into 'graphic-design' and 'web-development'?")) return;
+    setIsSeeding(true);
+    try {
+      const canvaQ = questions.filter(q => q.courseId === 'canva');
+      for (const q of canvaQ) {
+        await saveQuestion({ ...q, courseId: 'graphic-design' });
+      }
+      const htmlQ = questions.filter(q => q.courseId === 'html');
+      for (const q of htmlQ) {
+        await saveQuestion({ ...q, courseId: 'web-development' });
+      }
+      toast.success("Cleanup complete!");
+    } catch (e) {
+      toast.error("Error during cleanup.");
+    }
+    setIsSeeding(false);
+  };
+
+  const handleAddNewCourse = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (newCourseId && newCourseId.trim() !== '') {
+      const formatted = newCourseId.trim().toLowerCase().replace(/\s+/g, '-');
       if (!allCourses.includes(formatted)) {
         setAllCourses([...allCourses, formatted]);
       }
       setActiveCourse(formatted);
+      setIsAddingCourse(false);
+      setNewCourseId('');
     }
   };
 
@@ -81,14 +115,9 @@ export default function QuestionsPage() {
     try {
       const result = await saveQuestion(editingQuestion);
       setEditingQuestion(null);
-      // Reload the specific course to update the UI
-      const updatedQ = await getQuestions(editingQuestion.courseId as string);
-      setQuestions(prev => [
-        ...prev.filter(q => q.courseId !== editingQuestion.courseId),
-        ...updatedQ
-      ]);
+      toast.success("Question saved successfully!");
     } catch (err) {
-      alert("Failed to save question.");
+      toast.error("Failed to save question.");
     }
   };
 
@@ -97,8 +126,9 @@ export default function QuestionsPage() {
       try {
         await deleteQuestion(id);
         setQuestions(prev => prev.filter(q => q.id !== id));
+        toast.success("Question deleted.");
       } catch (err) {
-        alert("Failed to delete.");
+        toast.error("Failed to delete.");
       }
     }
   };
@@ -114,14 +144,26 @@ export default function QuestionsPage() {
           <h2 className="font-display font-bold text-xl text-slate-900">Question Bank Manager</h2>
           <p className="text-sm text-slate-500 mt-1">Manage exam questions for all courses.</p>
         </div>
-        <button 
-          onClick={handleSeed}
-          disabled={isSeeding}
-          className="flex items-center gap-2 px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-sm font-semibold transition-colors disabled:opacity-50"
-        >
-          <Database size={16} />
-          {isSeeding ? "Seeding..." : "Seed Initial Questions"}
-        </button>
+        <div className="flex items-center gap-2">
+          {allCourses.includes('canva') || allCourses.includes('html') ? (
+            <button 
+              onClick={handleCleanup}
+              disabled={isSeeding}
+              className="flex items-center gap-2 px-4 py-2 bg-rose-100 hover:bg-rose-200 text-rose-700 rounded-lg text-sm font-semibold transition-colors disabled:opacity-50"
+            >
+              <Database size={16} />
+              {isSeeding ? "Cleaning..." : "Cleanup Legacy Courses"}
+            </button>
+          ) : null}
+          <button 
+            onClick={handleSeed}
+            disabled={isSeeding}
+            className="flex items-center gap-2 px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-sm font-semibold transition-colors disabled:opacity-50"
+          >
+            <Database size={16} />
+            {isSeeding ? "Seeding..." : "Seed Initial Questions"}
+          </button>
+        </div>
       </div>
 
       {/* Course Tabs */}
@@ -140,7 +182,7 @@ export default function QuestionsPage() {
           </button>
         ))}
         <button 
-          onClick={handleAddNewCourse}
+          onClick={() => setIsAddingCourse(true)}
           className="px-4 py-2 rounded-t-lg text-sm font-bold text-brand-orange hover:bg-brand-orange/5 transition-colors flex items-center gap-1"
         >
           <Plus size={16} />
@@ -272,6 +314,40 @@ export default function QuestionsPage() {
                 <button type="button" onClick={() => setEditingQuestion(null)} className="px-4 py-2 font-semibold text-slate-600 hover:bg-slate-100 rounded-lg transition-colors">Cancel</button>
                 <button type="submit" className="px-4 py-2 font-semibold text-white bg-brand-orange hover:bg-brand-orange-dark rounded-lg flex items-center gap-2 transition-colors">
                   <Save size={16} /> Save Question
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Add Course Modal */}
+      {isAddingCourse && (
+        <div className="fixed inset-0 bg-slate-900/50 z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-xl shadow-xl w-full max-w-md overflow-hidden flex flex-col">
+            <div className="p-4 border-b border-slate-200 flex justify-between items-center bg-slate-50">
+              <h3 className="font-display font-bold text-lg">Add New Course</h3>
+              <button onClick={() => setIsAddingCourse(false)} className="text-slate-400 hover:text-slate-900"><X size={20} /></button>
+            </div>
+            
+            <form onSubmit={handleAddNewCourse} className="p-6 space-y-4">
+              <div>
+                <label className="block text-sm font-semibold text-slate-700 mb-1">Course ID</label>
+                <input 
+                  required
+                  type="text"
+                  placeholder="e.g. python, cybersecurity"
+                  value={newCourseId}
+                  onChange={e => setNewCourseId(e.target.value)}
+                  className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg focus:border-brand-orange focus:ring-1 focus:ring-brand-orange outline-none"
+                />
+                <p className="text-xs text-slate-500 mt-1">Spaces will be automatically converted to hyphens.</p>
+              </div>
+
+              <div className="pt-4 flex justify-end gap-3">
+                <button type="button" onClick={() => setIsAddingCourse(false)} className="px-4 py-2 font-semibold text-slate-600 hover:bg-slate-100 rounded-lg transition-colors">Cancel</button>
+                <button type="submit" className="px-4 py-2 font-semibold text-white bg-brand-orange hover:bg-brand-orange-dark rounded-lg flex items-center gap-2 transition-colors">
+                  <Plus size={16} /> Add Course
                 </button>
               </div>
             </form>

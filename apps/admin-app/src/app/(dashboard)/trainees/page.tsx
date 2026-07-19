@@ -1,31 +1,43 @@
 "use client";
 
 import React, { useEffect, useState } from 'react';
-import { getAllTrainees, getAllExams, updateTraineeStatus, deleteTrainee, TraineeData, ExamRecord } from '@techinejigbo/firebase/src/firestore';
-import { Search, MoreVertical, ShieldAlert, Trash2, CheckCircle2 } from 'lucide-react';
+import { subscribeToTrainees, subscribeToExams, updateTraineeStatus, deleteTrainee, TraineeData, ExamRecord } from '@techinejigbo/firebase/src/firestore';
+import { Search, MoreVertical, ShieldAlert, Trash2, CheckCircle2, ChevronLeft, ChevronRight } from 'lucide-react';
+import toast from 'react-hot-toast';
+
+const ITEMS_PER_PAGE = 20;
 
 export default function TraineesPage() {
   const [trainees, setTrainees] = useState<TraineeData[]>([]);
   const [exams, setExams] = useState<ExamRecord[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
 
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
 
   useEffect(() => {
-    loadData();
-  }, []);
-
-  async function loadData() {
     setLoading(true);
-    const [fetchedTrainees, fetchedExams] = await Promise.all([
-      getAllTrainees(),
-      getAllExams()
-    ]);
-    setTrainees(fetchedTrainees);
-    setExams(fetchedExams);
-    setLoading(false);
-  }
+    let traineesLoaded = false;
+    let examsLoaded = false;
+    
+    const unsubscribeTrainees = subscribeToTrainees((data) => {
+      setTrainees(data);
+      traineesLoaded = true;
+      if (examsLoaded) setLoading(false);
+    });
+
+    const unsubscribeExams = subscribeToExams((data) => {
+      setExams(data);
+      examsLoaded = true;
+      if (traineesLoaded) setLoading(false);
+    });
+
+    return () => {
+      unsubscribeTrainees();
+      unsubscribeExams();
+    };
+  }, []);
 
   const handleStatusToggle = async (trainee: TraineeData) => {
     setActiveDropdown(null);
@@ -38,8 +50,9 @@ export default function TraineesPage() {
       try {
         await updateTraineeStatus(trainee.uid, newStatus);
         setTrainees(prev => prev.map(t => t.uid === trainee.uid ? { ...t, status: newStatus } : t));
+        toast.success(`Account ${newStatus === 'suspended' ? 'suspended' : 'reactivated'} successfully.`);
       } catch (err) {
-        alert("Failed to update status.");
+        toast.error("Failed to update status.");
       }
     }
   };
@@ -50,8 +63,9 @@ export default function TraineesPage() {
       try {
         await deleteTrainee(trainee.uid);
         setTrainees(prev => prev.filter(t => t.uid !== trainee.uid));
+        toast.success("Trainee deleted permanently.");
       } catch (err) {
-        alert("Failed to delete trainee.");
+        toast.error("Failed to delete trainee.");
       }
     }
   };
@@ -62,9 +76,12 @@ export default function TraineesPage() {
     t.email.toLowerCase().includes(search.toLowerCase())
   );
 
+  const totalPages = Math.ceil(filteredTrainees.length / ITEMS_PER_PAGE);
+  const paginatedTrainees = filteredTrainees.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE);
+
   return (
     <div className="space-y-6">
-      <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden min-h-[500px]">
+      <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden min-h-[500px] flex flex-col">
         <div className="p-6 border-b border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <h2 className="font-display font-bold text-xl text-slate-900">Trainee Directory</h2>
           <div className="relative">
@@ -75,13 +92,13 @@ export default function TraineesPage() {
               type="text"
               placeholder="Search trainees..."
               value={search}
-              onChange={(e) => setSearch(e.target.value)}
+              onChange={(e) => { setSearch(e.target.value); setCurrentPage(1); }}
               className="pl-10 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:outline-none focus:border-brand-orange focus:ring-1 focus:ring-brand-orange w-full sm:w-64"
             />
           </div>
         </div>
 
-        <div className="overflow-x-auto pb-32">
+        <div className="overflow-x-auto flex-1">
           <table className="w-full text-left text-sm text-slate-600">
             <thead className="bg-slate-50 text-xs uppercase font-mono font-bold text-slate-500 border-b border-slate-200">
               <tr>
@@ -100,14 +117,14 @@ export default function TraineesPage() {
                     Loading data...
                   </td>
                 </tr>
-              ) : filteredTrainees.length === 0 ? (
+              ) : paginatedTrainees.length === 0 ? (
                 <tr>
                   <td colSpan={6} className="px-6 py-10 text-center text-slate-400">
                     No trainees found.
                   </td>
                 </tr>
               ) : (
-                filteredTrainees.map(trainee => {
+                paginatedTrainees.map(trainee => {
                   const traineeExams = exams.filter(e => e.traineeId === trainee.uid);
                   const bestExam = traineeExams.sort((a, b) => b.score - a.score)[0];
                   const isSuspended = trainee.status === 'suspended';
@@ -209,6 +226,31 @@ export default function TraineesPage() {
             </tbody>
           </table>
         </div>
+        
+        {totalPages > 1 && (
+          <div className="p-4 border-t border-slate-200 flex items-center justify-between">
+            <span className="text-sm text-slate-500">
+              Showing {(currentPage - 1) * ITEMS_PER_PAGE + 1} to {Math.min(currentPage * ITEMS_PER_PAGE, filteredTrainees.length)} of {filteredTrainees.length} trainees
+            </span>
+            <div className="flex items-center gap-2">
+              <button 
+                onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                disabled={currentPage === 1}
+                className="p-2 rounded-lg border border-slate-200 text-slate-500 hover:bg-slate-50 disabled:opacity-50 transition-colors"
+              >
+                <ChevronLeft size={16} />
+              </button>
+              <span className="text-sm font-semibold px-2">Page {currentPage} of {totalPages}</span>
+              <button 
+                onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                disabled={currentPage === totalPages}
+                className="p-2 rounded-lg border border-slate-200 text-slate-500 hover:bg-slate-50 disabled:opacity-50 transition-colors"
+              >
+                <ChevronRight size={16} />
+              </button>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

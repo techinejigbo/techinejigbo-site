@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { useStudent } from '../../../components/StudentProvider';
-import { getGlobalSettings, saveExamScore, getAllExams, getQuestions, ExamRecord } from '@techinejigbo/firebase/src/firestore';
+import { getGlobalSettings, saveExamScore, subscribeToExams, getQuestions, ExamRecord } from '@techinejigbo/firebase/src/firestore';
 import ExamInterface from '../../../components/ExamInterface';
 import ResultView from '../../../components/ResultView';
 import { StudentInfo } from '../../../types';
@@ -22,17 +22,23 @@ export default function ExamsPage() {
   const [pastExams, setPastExams] = useState<ExamRecord[]>([]);
 
   useEffect(() => {
+    let unsubscribe = () => {};
+    
     async function loadSettings() {
       if (!trainee) return;
-      const [settings, myExams] = await Promise.all([
-        getGlobalSettings(),
-        getAllExams(trainee.uid)
-      ]);
-      setIsExamOpen(settings.isExamOpen);
-      setPastExams(myExams);
-      setLoading(false);
+      const settings = await getGlobalSettings();
+      const traineeCourse = trainee.course || trainee.program || 'web-development';
+      const isOpen = settings.openPrograms?.[traineeCourse] || false;
+      setIsExamOpen(isOpen);
+      
+      unsubscribe = subscribeToExams((myExams) => {
+        setPastExams(myExams);
+        setLoading(false);
+      }, trainee.uid);
     }
+    
     loadSettings();
+    return () => unsubscribe();
   }, [trainee]);
 
   const studentInfo: StudentInfo | null = trainee ? {
@@ -41,7 +47,7 @@ export default function ExamsPage() {
     email: trainee.email,
     phone: trainee.phone,
     school: trainee.school,
-    course: trainee.course || (trainee.program === 'graphic-design' ? 'graphic-design' : 'web-development')
+    course: trainee.course || trainee.program || 'web-development'
   } : null;
 
   const handleStartExam = () => {
@@ -169,7 +175,7 @@ export default function ExamsPage() {
             {pastExams.map((exam, idx) => (
               <div key={idx} className="bg-white border border-slate-200 p-6 rounded-xl shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div>
-                  <h3 className="font-bold text-slate-900 capitalize">{exam.examId === 'graphic-design' ? 'Basic Graphic Design' : 'Basic Web Dev'} Certification</h3>
+                  <h3 className="font-bold text-slate-900 capitalize">{exam.examId.replace('-', ' ')} Certification</h3>
                   <p className="text-xs text-slate-400 font-mono mt-1">Completed: {new Date(exam.completedAt).toLocaleString()}</p>
                 </div>
                 <div className="text-right">

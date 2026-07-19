@@ -3,9 +3,10 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { LayoutDashboard, Users, BookOpen, Settings, LogOut, HelpCircle, Menu, X, CheckSquare } from 'lucide-react';
+import { LayoutDashboard, Users, BookOpen, Settings, LogOut, HelpCircle, Menu, X, CheckSquare, FileText, Bell, HeartHandshake, MessageSquare, Image } from 'lucide-react';
 import { logoutUser } from '@techinejigbo/firebase/src/auth';
 import { useAdmin } from '../../components/AdminProvider';
+import { Toaster } from 'react-hot-toast';
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const { user } = useAdmin();
@@ -21,6 +22,11 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     { name: 'Trainees', href: '/trainees', icon: <Users size={20} /> },
     { name: 'Exams', href: '/exams', icon: <BookOpen size={20} /> },
     { name: 'Questions', href: '/questions', icon: <CheckSquare size={20} /> },
+    { name: 'Materials', href: '/materials', icon: <FileText size={20} /> },
+    { name: 'Announcements', href: '/announcements', icon: <Bell size={20} /> },
+    { name: 'Volunteers', href: '/volunteers', icon: <HeartHandshake size={20} /> },
+    { name: 'Messages', href: '/messages', icon: <MessageSquare size={20} /> },
+    { name: 'Gallery', href: '/gallery', icon: <Image size={20} /> },
     { name: 'Settings', href: '/settings', icon: <Settings size={20} /> },
   ];
 
@@ -107,6 +113,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           {children}
         </main>
       </div>
+      <Toaster position="top-right" />
     </div>
   );
 }

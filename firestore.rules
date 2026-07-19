@@ -61,12 +61,28 @@ service cloud.firestore {
       allow write: if isAdmin();
     }
     
+    match /volunteers/{volunteerId} {
+      allow create: if true;
+      allow read, update, delete: if isAdmin();
+    }
+    
+    match /messages/{messageId} {
+      allow create: if true;
+      allow read, update, delete: if isAdmin();
+    }
+    
     match /allowed_admins/{email} {
       allow read: if true;
       allow write: if isAdmin();
     }
     
     match /courses/{courseId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+    
+    // Gallery Collection
+    match /gallery/{galleryId} {
       allow read: if true;
       allow write: if isAdmin();
     }

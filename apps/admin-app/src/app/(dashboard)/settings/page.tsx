@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import { getAllowedAdmins, addInvitedStaff, deleteInvitedStaff } from '@techinejigbo/firebase/src/firestore';
 import { Shield, Mail, Trash2, UserPlus, Link as LinkIcon, Check } from 'lucide-react';
+import toast from 'react-hot-toast';
 
 export default function SettingsPage() {
   const [invites, setInvites] = useState<{email: string, invitedAt: string}[]>([]);
@@ -30,9 +31,10 @@ export default function SettingsPage() {
     try {
       await addInvitedStaff(newEmail.toLowerCase().trim());
       setNewEmail('');
+      toast.success("Invite sent successfully.");
       loadInvites();
     } catch (err) {
-      alert("Failed to send invite.");
+      toast.error("Failed to send invite.");
     }
     setIsAdding(false);
   };
@@ -42,8 +44,9 @@ export default function SettingsPage() {
       try {
         await deleteInvitedStaff(email);
         setInvites(prev => prev.filter(i => i.email !== email));
+        toast.success("Invite revoked.");
       } catch (err) {
-        alert("Failed to revoke invite.");
+        toast.error("Failed to revoke invite.");
       }
     }
   };
@@ -127,7 +130,7 @@ export default function SettingsPage() {
                       onClick={() => {
                         const url = `${window.location.origin}/signup?email=${encodeURIComponent(invite.email)}`;
                         navigator.clipboard.writeText(url);
-                        alert(`Invite link copied for ${invite.email}`);
+                        toast.success(`Invite link copied for ${invite.email}`);
                       }}
                       className="px-3 py-1.5 text-xs font-semibold text-indigo-600 bg-indigo-50 hover:bg-indigo-100 rounded-lg transition-colors flex items-center gap-1 border border-indigo-100"
                       title="Copy Unique Invite Link"

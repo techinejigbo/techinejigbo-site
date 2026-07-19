@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import Image from 'next/image';
 import { ArrowRight, Code2, Heart, Users, CheckCircle2, ChevronRight } from 'lucide-react';
 
 export default function Home() {
@@ -85,13 +86,15 @@ export default function Home() {
             </div>
             <div className="relative">
               <div className="aspect-square bg-slate-200 rounded-2xl overflow-hidden relative shadow-2xl">
-                {/* Placeholder for real image */}
-                <div className="absolute inset-0 bg-brand-dark/5 flex items-center justify-center">
-                  <span className="text-slate-400 font-medium">[Image: Students in a workshop session]</span>
-                </div>
+                <Image 
+                  src="/TechinEjigboLogo.png"
+                  alt="TechinEjigbo"
+                  fill
+                  className="object-contain bg-white p-8"
+                />
               </div>
               {/* Decorative element */}
-              <div className="absolute -bottom-6 -left-6 bg-white p-6 rounded-2xl shadow-xl max-w-xs border border-slate-100">
+              {/* <div className="absolute -bottom-6 -left-6 bg-white p-6 rounded-2xl shadow-xl max-w-xs border border-slate-100">
                 <div className="flex gap-4 items-start">
                   <div className="bg-orange-50 p-3 rounded-full text-brand-orange">
                     <Code2 size={24} />
@@ -101,7 +104,7 @@ export default function Home() {
                     <p className="text-sm text-slate-500 mt-1">Web Development (HTML/CSS/JS) & Graphic Design</p>
                   </div>
                 </div>
-              </div>
+              </div> */}
             </div>
           </div>
         </div>

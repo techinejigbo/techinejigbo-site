@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { useStudent } from '../../../components/StudentProvider';
-import { getMaterials, Material } from '@techinejigbo/firebase/src/firestore';
+import { subscribeToMaterials, Material } from '@techinejigbo/firebase/src/firestore';
 import { PlayCircle, FileText, ExternalLink } from 'lucide-react';
 
 export default function MaterialsPage() {
@@ -11,11 +11,19 @@ export default function MaterialsPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (trainee?.course) {
-      getMaterials(trainee.course).then(data => {
-        setMaterials(data);
+    if (trainee) {
+      const rawCourse = trainee.course || trainee.program || 'web-development';
+      const courseId = rawCourse.toLowerCase().replace(/\s+/g, '-');
+      if (courseId) {
+        setLoading(true);
+        const unsubscribe = subscribeToMaterials(courseId, (data) => {
+          setMaterials(data);
+          setLoading(false);
+        });
+        return () => unsubscribe();
+      } else {
         setLoading(false);
-      });
+      }
     }
   }, [trainee]);
 

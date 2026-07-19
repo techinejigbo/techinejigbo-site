@@ -91,13 +91,8 @@ export default function Footer() {
           </div>
         </div>
 
-        <div className="pt-8 border-t border-slate-800 flex flex-col md:flex-row justify-between items-center gap-4 text-xs text-slate-500">
-          <p>© {currentYear} TechinEjigbo Assessment Board. All rights reserved.</p>
-          <div className="flex items-center gap-1">
-            <span>Built with</span>
-            <Heart size={12} className="text-brand-orange fill-brand-orange mx-0.5" />
-            <span>for the community.</span>
-          </div>
+        <div className="pt-8 border-t border-slate-800 flex flex-col md:flex-row justify-center items-center gap-4 text-xs text-slate-500">
+          <p>© {currentYear} TechinEjigbo. All rights reserved.</p>
         </div>
       </div>
     </footer>

@@ -755,24 +755,6 @@ export const htmlQuestions: Question[] = [
       C: "<li>",
       D: "<list>"
     },
-    correctAnswer: "C" // Wait, is C or B? Let's check: B is <ol>, so 18's B option matches!
-    // Ah, wait! In HTML, ordered list is <ol>. Let's review the prompt:
-    // 18. Which tag creates an ordered list?
-    // A. <ul>
-    // B. <ol> ✅
-    // C. <li>
-    // D. <list>
-    // So the correct answer is option B! Yes, option B is <ol>.
-  },
-  {
-    id: 18,
-    question: "Which tag creates an ordered list?",
-    options: {
-      A: "<ul>",
-      B: "<ol>",
-      C: "<li>",
-      D: "<list>"
-    },
     correctAnswer: "B"
   },
   {

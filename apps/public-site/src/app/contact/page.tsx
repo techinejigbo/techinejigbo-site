@@ -1,9 +1,40 @@
 "use client";
 
-import React from 'react';
-import { Mail, MapPin, Send, MessageCircle } from 'lucide-react';
+import React, { useState } from 'react';
+import { Mail, MapPin, Send, MessageCircle, CheckCircle2 } from 'lucide-react';
+import { saveContactMessage } from '@techinejigbo/firebase/src/firestore';
 
 export default function ContactPage() {
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    subject: '',
+    message: ''
+  });
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isSubmitted, setIsSubmitted] = useState(false);
+  const [error, setError] = useState('');
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+    setError('');
+    
+    try {
+      await saveContactMessage({
+        ...formData,
+        createdAt: new Date().toISOString()
+      });
+      setIsSubmitted(true);
+      setFormData({ name: '', email: '', subject: '', message: '' });
+    } catch (err) {
+      console.error(err);
+      setError('Failed to send message. Please try again later.');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   return (
     <div className="flex flex-col min-h-screen bg-slate-50">
       {/* Header */}
@@ -70,34 +101,82 @@ export default function ContactPage() {
             {/* Contact Form (Right Area) */}
             <div className="md:col-span-3 p-10 lg:p-14">
               <h3 className="text-2xl font-bold font-display text-brand-dark mb-6">Send us a message</h3>
-              <form className="space-y-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div>
-                    <label className="block text-sm font-medium text-slate-700 mb-2">Your Name</label>
-                    <input type="text" className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-brand-orange focus:border-transparent outline-none transition-all bg-slate-50 focus:bg-white" placeholder="John Doe" />
+              
+              {isSubmitted ? (
+                <div className="bg-emerald-50 border border-emerald-200 text-emerald-800 p-8 rounded-2xl flex flex-col items-center justify-center text-center">
+                  <CheckCircle2 size={48} className="text-emerald-500 mb-4" />
+                  <h4 className="text-xl font-bold mb-2">Message Sent!</h4>
+                  <p className="text-emerald-700">Thank you for reaching out. We will get back to you shortly.</p>
+                  <button 
+                    onClick={() => setIsSubmitted(false)}
+                    className="mt-6 text-sm font-semibold text-emerald-700 hover:text-emerald-900 underline"
+                  >
+                    Send another message
+                  </button>
+                </div>
+              ) : (
+                <form className="space-y-6" onSubmit={handleSubmit}>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                      <label className="block text-sm font-medium text-slate-700 mb-2">Your Name</label>
+                      <input 
+                        type="text" 
+                        required
+                        value={formData.name}
+                        onChange={(e) => setFormData({...formData, name: e.target.value})}
+                        className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-brand-orange focus:border-transparent outline-none transition-all bg-slate-50 focus:bg-white" 
+                        placeholder="John Doe" 
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-slate-700 mb-2">Your Email</label>
+                      <input 
+                        type="email" 
+                        required
+                        value={formData.email}
+                        onChange={(e) => setFormData({...formData, email: e.target.value})}
+                        className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-brand-orange focus:border-transparent outline-none transition-all bg-slate-50 focus:bg-white" 
+                        placeholder="john@example.com" 
+                      />
+                    </div>
                   </div>
+                  
                   <div>
-                    <label className="block text-sm font-medium text-slate-700 mb-2">Your Email</label>
-                    <input type="email" className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-brand-orange focus:border-transparent outline-none transition-all bg-slate-50 focus:bg-white" placeholder="john@example.com" />
+                    <label className="block text-sm font-medium text-slate-700 mb-2">Subject</label>
+                    <input 
+                      type="text" 
+                      required
+                      value={formData.subject}
+                      onChange={(e) => setFormData({...formData, subject: e.target.value})}
+                      className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-brand-orange focus:border-transparent outline-none transition-all bg-slate-50 focus:bg-white" 
+                      placeholder="How can we help?" 
+                    />
                   </div>
-                </div>
-                
-                <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-2">Subject</label>
-                  <input type="text" className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-brand-orange focus:border-transparent outline-none transition-all bg-slate-50 focus:bg-white" placeholder="How can we help?" />
-                </div>
 
-                <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-2">Message</label>
-                  <textarea rows={5} className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-brand-orange focus:border-transparent outline-none transition-all bg-slate-50 focus:bg-white resize-none" placeholder="Write your message here..."></textarea>
-                </div>
+                  <div>
+                    <label className="block text-sm font-medium text-slate-700 mb-2">Message</label>
+                    <textarea 
+                      rows={5} 
+                      required
+                      value={formData.message}
+                      onChange={(e) => setFormData({...formData, message: e.target.value})}
+                      className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-brand-orange focus:border-transparent outline-none transition-all bg-slate-50 focus:bg-white resize-none" 
+                      placeholder="Write your message here..."
+                    ></textarea>
+                  </div>
 
-                <button type="button" className="bg-brand-dark text-white px-8 py-4 rounded-xl font-semibold hover:bg-black transition-colors flex items-center gap-2 group">
-                  Send Message
-                  <Send size={18} className="group-hover:translate-x-1 transition-transform" />
-                </button>
-                <p className="text-xs text-slate-500 mt-2">This form is currently a placeholder for the MVP.</p>
-              </form>
+                  {error && <p className="text-red-500 text-sm">{error}</p>}
+
+                  <button 
+                    type="submit" 
+                    disabled={isSubmitting}
+                    className="bg-brand-dark text-white px-8 py-4 rounded-xl font-semibold hover:bg-black transition-colors flex items-center gap-2 group disabled:opacity-70"
+                  >
+                    {isSubmitting ? 'Sending...' : 'Send Message'}
+                    {!isSubmitting && <Send size={18} className="group-hover:translate-x-1 transition-transform" />}
+                  </button>
+                </form>
+              )}
             </div>
 
           </div>

@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { useStudent } from '../../../components/StudentProvider';
-import { getAnnouncements, Announcement } from '@techinejigbo/firebase/src/firestore';
+import { subscribeToAnnouncements, Announcement } from '@techinejigbo/firebase/src/firestore';
 import { Megaphone, ArrowRight, BookOpen, Clock } from 'lucide-react';
 import Link from 'next/link';
 
@@ -12,12 +12,12 @@ export default function DashboardPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    async function loadData() {
-      const data = await getAnnouncements();
+    setLoading(true);
+    const unsubscribe = subscribeToAnnouncements((data) => {
       setAnnouncements(data);
       setLoading(false);
-    }
-    loadData();
+    });
+    return () => unsubscribe();
   }, []);
 
   // Simple greeting based on time
@@ -84,7 +84,7 @@ export default function DashboardPage() {
                 <div className="text-center py-10 text-slate-400">No new announcements at this time.</div>
               ) : (
                 <div className="space-y-4">
-                  {announcements.map((ann) => (
+                  {announcements.slice(0, 3).map((ann) => (
                     <div key={ann.id} className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm relative pl-6">
                       {/* Left indicator line */}
                       <div className="absolute left-0 top-0 bottom-0 w-1 bg-brand-orange rounded-l-xl" />
@@ -100,6 +100,17 @@ export default function DashboardPage() {
                       </p>
                     </div>
                   ))}
+                  
+                  {announcements.length > 3 && (
+                    <div className="pt-2">
+                      <Link 
+                        href="/announcements" 
+                        className="text-brand-orange hover:text-brand-orange-dark font-bold text-sm flex items-center justify-center gap-2 transition-colors py-2"
+                      >
+                        View all announcements <ArrowRight size={16} />
+                      </Link>
+                    </div>
+                  )}
                 </div>
               )}
             </div>

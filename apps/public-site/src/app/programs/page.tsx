@@ -16,7 +16,7 @@ export default function ProgramsPage() {
       </section>
 
       {/* Cohort Model Overview */}
-      <section className="py-20 bg-white">
+      {/* <section className="py-20 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid md:grid-cols-2 gap-16 items-center">
             <div>
@@ -58,7 +58,7 @@ export default function ProgramsPage() {
             </div>
           </div>
         </div>
-      </section>
+      </section> */}
 
       {/* Curriculum Tracks */}
       <section className="py-24 bg-brand-dark text-white border-t border-slate-800 relative overflow-hidden">
@@ -91,9 +91,6 @@ export default function ProgramsPage() {
                   <p className="text-sm text-slate-400">Introduction to component-based architecture using React and Tailwind CSS.</p>
                 </div>
               </div>
-              <Link href="/impact#gallery" className="text-white font-semibold hover:text-brand-orange flex items-center gap-1">
-                View Student Projects <ArrowRight size={18} />
-              </Link>
             </div>
 
             {/* Graphic Design Track */}
@@ -114,12 +111,9 @@ export default function ProgramsPage() {
                 </div>
                 <div className="bg-slate-800 p-4 rounded-xl">
                   <h4 className="font-bold text-brand-orange-light mb-1">Module 3: Tool Mastery</h4>
-                  <p className="text-sm text-slate-400">Hands-on practice using Figma, Canva, and Adobe tools for real-world scenarios like flyers and UI mockups.</p>
+                  <p className="text-sm text-slate-400">Hands-on practice using Canva, and other tools for real-world scenarios like flyers, social media posts, banners and logos.</p>
                 </div>
               </div>
-              <Link href="/impact#gallery" className="text-white font-semibold hover:text-brand-orange flex items-center gap-1">
-                View Student Designs <ArrowRight size={18} />
-              </Link>
             </div>
           </div>
         </div>

@@ -25,7 +25,10 @@ export default function ExamsPage() {
         getGlobalSettings(),
         getAllCoursesFromQuestions()
       ]);
-      setSettings({ isExamOpen: false, openPrograms: {}, ...fetchedSettings });
+      setSettings({ 
+        isExamOpen: fetchedSettings?.isExamOpen ?? false, 
+        openPrograms: fetchedSettings?.openPrograms ?? {} 
+      });
       setCourses(fetchedCourses);
     }
     

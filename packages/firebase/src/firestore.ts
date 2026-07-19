@@ -231,7 +231,10 @@ export const getGlobalSettings = async (): Promise<GlobalSettings> => {
     const docSnap = await getDoc(docRef);
     if (docSnap.exists()) {
       const data = docSnap.data() as GlobalSettings;
-      return { isExamOpen: false, openPrograms: {}, ...data };
+      return { 
+        isExamOpen: data.isExamOpen ?? false, 
+        openPrograms: data.openPrograms ?? {} 
+      };
     }
     return { isExamOpen: false, openPrograms: {} };
   } catch (error) {

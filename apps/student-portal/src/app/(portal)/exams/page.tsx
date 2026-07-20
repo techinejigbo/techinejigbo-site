@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { useStudent } from '../../../components/StudentProvider';
-import { getGlobalSettings, saveExamScore, subscribeToExams, getQuestions, ExamRecord } from '@techinejigbo/firebase/src/firestore';
+import { getGlobalSettings, subscribeToGlobalSettings, saveExamScore, subscribeToExams, getQuestions, ExamRecord } from '@techinejigbo/firebase/src/firestore';
 import ExamInterface from '../../../components/ExamInterface';
 import ResultView from '../../../components/ResultView';
 import { StudentInfo } from '../../../types';
@@ -26,20 +26,40 @@ export default function ExamsPage() {
     
     async function loadSettings() {
       if (!trainee) return;
-      const settings = await getGlobalSettings();
-      const traineeCourse = trainee.course || trainee.program || 'web-development';
-      const isOpen = settings.openPrograms?.[traineeCourse] || false;
-      setIsExamOpen(isOpen);
       
-      unsubscribe = subscribeToExams((myExams) => {
+      const unsubSettings = subscribeToGlobalSettings((settings) => {
+        const rawCourse = trainee.course || trainee.program || 'web-development';
+        const normalizedCourse = rawCourse.toLowerCase().replace(/\s+/g, '-');
+        
+        const isOpen = settings.openPrograms?.[normalizedCourse] 
+          || settings.openPrograms?.[rawCourse] 
+          || false;
+          
+        setIsExamOpen(isOpen);
+      });
+      
+      unsubscribe = () => {
+        unsubSettings();
+      };
+
+      const unsubExams = subscribeToExams((myExams) => {
         setPastExams(myExams);
         setLoading(false);
       }, trainee.uid);
+      
+      const previousUnsubscribe = unsubscribe;
+      unsubscribe = () => {
+        previousUnsubscribe();
+        unsubExams();
+      };
     }
     
     loadSettings();
     return () => unsubscribe();
   }, [trainee]);
+
+  const rawCourse = trainee ? (trainee.course || trainee.program || 'web-development') : 'web-development';
+  const normalizedCourse = rawCourse.toLowerCase().replace(/\s+/g, '-');
 
   const studentInfo: StudentInfo | null = trainee ? {
     uid: trainee.uid,
@@ -47,7 +67,7 @@ export default function ExamsPage() {
     email: trainee.email,
     phone: trainee.phone,
     school: trainee.school,
-    course: trainee.course || trainee.program || 'web-development'
+    course: normalizedCourse
   } : null;
 
   const handleStartExam = () => {

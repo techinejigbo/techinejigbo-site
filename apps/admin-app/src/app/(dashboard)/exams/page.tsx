@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from 'react';
-import { subscribeToExams, subscribeToTrainees, getGlobalSettings, updateGlobalSettings, ExamRecord, TraineeData, GlobalSettings, getAllCoursesFromQuestions } from '@techinejigbo/firebase/src/firestore';
+import { subscribeToExams, subscribeToTrainees, getGlobalSettings, subscribeToGlobalSettings, updateGlobalSettings, ExamRecord, TraineeData, GlobalSettings, getAllCoursesFromQuestions } from '@techinejigbo/firebase/src/firestore';
 import { Search, Lock, Unlock, ChevronLeft, ChevronRight } from 'lucide-react';
 import toast from 'react-hot-toast';
 
@@ -21,18 +21,18 @@ export default function ExamsPage() {
     let traineesLoaded = false;
     
     async function init() {
-      const [fetchedSettings, fetchedCourses] = await Promise.all([
-        getGlobalSettings(),
-        getAllCoursesFromQuestions()
-      ]);
-      setSettings({ 
-        isExamOpen: fetchedSettings?.isExamOpen ?? false, 
-        openPrograms: fetchedSettings?.openPrograms ?? {} 
-      });
+      const fetchedCourses = await getAllCoursesFromQuestions();
       setCourses(fetchedCourses);
     }
     
     init();
+
+    const unsubSettings = subscribeToGlobalSettings((fetchedSettings) => {
+      setSettings({
+        isExamOpen: fetchedSettings?.isExamOpen ?? false,
+        openPrograms: fetchedSettings?.openPrograms ?? {}
+      });
+    });
 
     const unsubExams = subscribeToExams((fetchedExams) => {
       setExams(fetchedExams);
@@ -49,6 +49,7 @@ export default function ExamsPage() {
     });
 
     return () => {
+      unsubSettings();
       unsubExams();
       unsubTrainees();
     };

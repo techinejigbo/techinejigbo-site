@@ -243,6 +243,24 @@ export const getGlobalSettings = async (): Promise<GlobalSettings> => {
   }
 };
 
+export const subscribeToGlobalSettings = (callback: (settings: GlobalSettings) => void) => {
+  const docRef = doc(db, 'settings', 'global');
+  return onSnapshot(docRef, (docSnap) => {
+    if (docSnap.exists()) {
+      const data = docSnap.data() as GlobalSettings;
+      callback({
+        isExamOpen: data.isExamOpen ?? false,
+        openPrograms: data.openPrograms ?? {}
+      });
+    } else {
+      callback({ isExamOpen: false, openPrograms: {} });
+    }
+  }, (error) => {
+    console.error("Error in subscribeToGlobalSettings:", error);
+    callback({ isExamOpen: false, openPrograms: {} });
+  });
+};
+
 export const registerTrainee = async (data: TraineeData) => {
   try {
     const docRef = doc(db, 'trainees', data.uid);

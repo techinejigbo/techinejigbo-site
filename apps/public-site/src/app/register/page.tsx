@@ -105,7 +105,6 @@ export default function RegisterPage() {
       // Map the program display name to the course ID
       let courseId = 'web-development';
       if (formData.program === 'graphic-design' || formData.program === 'Graphic Design') courseId = 'graphic-design';
-      if (formData.program === 'digital-literacy') courseId = 'digital-literacy';
 
       const traineeData: TraineeData = {
         uid: user.uid,
@@ -228,7 +227,6 @@ export default function RegisterPage() {
                   <select name="program" required value={formData.program} onChange={handleChange} className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-brand-orange/50 focus:border-brand-orange bg-white">
                     <option value="web-development">Web Development</option>
                     <option value="graphic-design">Graphic Design</option>
-                    <option value="digital-literacy">Digital Literacy</option>
                   </select>
                 </div>
               </div>

@@ -34,6 +34,7 @@ export default function ExamsPage() {
         
         const isOpen = settings.openPrograms?.[normalizedCourse] 
           || settings.openPrograms?.[rawCourse] 
+          || settings.isExamOpen
           || false;
           
         setIsExamOpen(isOpen);

@@ -65,8 +65,10 @@ export default function ExamsPage() {
     if (window.confirm(confirmMessage)) {
       try {
         const newOpenPrograms = { ...settings.openPrograms, [courseId]: newStatus };
-        await updateGlobalSettings({ openPrograms: newOpenPrograms });
-        setSettings(prev => ({ ...prev, openPrograms: newOpenPrograms }));
+        const isExamOpen = Object.values(newOpenPrograms).some(isOpen => isOpen);
+        
+        await updateGlobalSettings({ openPrograms: newOpenPrograms, isExamOpen });
+        setSettings(prev => ({ ...prev, openPrograms: newOpenPrograms, isExamOpen }));
         toast.success(`Exam portal for ${courseId} is now ${newStatus ? 'OPEN' : 'CLOSED'}`);
       } catch (err) {
         toast.error("Failed to toggle exam portal.");

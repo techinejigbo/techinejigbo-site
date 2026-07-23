@@ -69,7 +69,7 @@ export default function ExamsPage() {
     email: trainee.email,
     phone: trainee.phone,
     school: trainee.school,
-    course: normalizedCourse
+    course: normalizedCourse as 'graphic-design' | 'web-development'
   } : null;
 
   const handleStartExam = () => {

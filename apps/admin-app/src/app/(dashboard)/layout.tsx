@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { LayoutDashboard, Users, BookOpen, Settings, LogOut, HelpCircle, Menu, X, CheckSquare, FileText, Bell, HeartHandshake, MessageSquare, Image } from 'lucide-react';
+import { LayoutDashboard, Users, BookOpen, Settings, LogOut, HelpCircle, Menu, X, CheckSquare, FileText, Bell, HeartHandshake, MessageSquare, Image, Award } from 'lucide-react';
 import { logoutUser } from '@techinejigbo/firebase/src/auth';
 import { useAdmin } from '../../components/AdminProvider';
 import { Toaster } from 'react-hot-toast';
@@ -21,6 +21,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     { name: 'Overview', href: '/', icon: <LayoutDashboard size={20} /> },
     { name: 'Trainees', href: '/trainees', icon: <Users size={20} /> },
     { name: 'Exams', href: '/exams', icon: <BookOpen size={20} /> },
+    { name: 'Certificates', href: '/certificates', icon: <Award size={20} /> },
     { name: 'Questions', href: '/questions', icon: <CheckSquare size={20} /> },
     { name: 'Materials', href: '/materials', icon: <FileText size={20} /> },
     { name: 'Announcements', href: '/announcements', icon: <Bell size={20} /> },
@@ -41,7 +42,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       )}
 
       {/* Sidebar */}
-      <aside className={`fixed inset-y-0 left-0 z-30 w-64 bg-white border-r border-slate-200 transform transition-transform duration-200 ease-in-out md:translate-x-0 md:static flex flex-col ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
+      <aside className={`fixed inset-y-0 left-0 z-30 w-64 bg-white border-r border-slate-200 transform transition-transform duration-200 ease-in-out md:translate-x-0 md:sticky md:top-0 md:h-screen flex flex-col ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
         <div className="p-6 flex items-center justify-between border-b border-slate-200">
           <div className="flex items-center gap-3">
             <div className="w-8 h-8 bg-brand-orange text-white rounded-lg flex items-center justify-center font-bold text-sm">

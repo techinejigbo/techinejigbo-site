@@ -2,7 +2,6 @@
 
 import React, { useState, useRef } from 'react';
 import { Camera, CheckCircle2, Loader2, ArrowRight } from 'lucide-react';
-import Link from 'next/link';
 import { registerUserWithEmail, registerTrainee, TraineeData } from '@techinejigbo/firebase';
 
 export default function RegisterPage() {
@@ -114,24 +113,25 @@ export default function RegisterPage() {
         phone: formData.phone,
         school: formData.school,
         traineeClass: formData.traineeClass,
-        program: courseId as any,
-        course: courseId as any,
+        program: courseId as 'web-development' | 'graphic-design',
+        course: courseId as 'web-development' | 'graphic-design',
         passportPhotoBase64: photoBase64,
         createdAt: new Date().toISOString(),
-        status: 'active'
+        status: 'pending'
       };
 
       await registerTrainee(traineeData);
       
       setSuccess(true);
-    } catch (error: any) {
-      console.error("Registration error:", error);
-      if (error.code === 'auth/email-already-in-use') {
+    } catch (error: unknown) {
+      const err = error as Error & { code?: string };
+      console.error("Registration error:", err);
+      if (err.code === 'auth/email-already-in-use') {
         setErrorMsg("This email is already registered. Please log in instead.");
-      } else if (error.code === 'auth/weak-password') {
+      } else if (err.code === 'auth/weak-password') {
         setErrorMsg("Password should be at least 6 characters.");
       } else {
-        setErrorMsg(error.message || "An unexpected error occurred. Please try again.");
+        setErrorMsg(err.message || "An unexpected error occurred. Please try again.");
       }
     } finally {
       setLoading(false);
@@ -140,27 +140,30 @@ export default function RegisterPage() {
 
   if (success) {
     return (
-      <div className="min-h-screen bg-slate-50 pt-32 pb-20">
-        <div className="max-w-2xl mx-auto px-4 text-center">
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4">
+        <div className="max-w-2xl w-full mx-auto text-center">
           <div className="bg-white p-10 rounded-2xl shadow-sm border border-slate-100 flex flex-col items-center">
             <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center text-green-500 mb-6">
               <CheckCircle2 size={40} />
             </div>
-            <h1 className="text-3xl font-bold font-display text-slate-900 mb-4">Registration Successful!</h1>
+            <h1 className="text-3xl font-bold font-display text-slate-900 mb-4">Registration Submitted!</h1>
             <p className="text-lg text-slate-600 mb-8">
-              Welcome to TechinEjigbo, {formData.firstName}! We've sent a verification email to <span className="font-semibold">{formData.email}</span>.
+              Welcome to TechinEjigbo, {formData.firstName}! We&apos;ve received your registration and sent a verification email to <span className="font-semibold">{formData.email}</span>.
             </p>
-            <div className="bg-orange-50 p-6 rounded-xl text-left w-full mb-8 border border-orange-100">
+            <div className="bg-amber-50 p-6 rounded-xl text-left w-full mb-8 border border-amber-100">
+              <h3 className="font-bold text-amber-900 mb-2">Important Notice: Pending Approval</h3>
+              <p className="text-amber-800 text-sm">
+                Your account is currently <span className="font-semibold">Pending Approval</span> by an administrator. You will not be able to access the student portal until your registration is approved.
+              </p>
+            </div>
+            <div className="bg-orange-50 p-6 rounded-xl text-left w-full border border-orange-100">
               <h3 className="font-bold text-brand-dark mb-2">Next Steps:</h3>
               <ol className="list-decimal pl-5 space-y-2 text-slate-700">
                 <li>Check your inbox (and spam folder) for the verification email.</li>
-                <li>Click the link in the email to verify your account.</li>
-                <li>You can use this email and password to log into the Exam Portal later.</li>
+                <li>Click the link in the email to verify your email address.</li>
+                <li>Wait for an administrator to review and approve your account.</li>
               </ol>
             </div>
-            <Link href="/" className="inline-flex items-center gap-2 bg-brand-orange text-white px-8 py-4 rounded-full font-semibold hover:bg-brand-orange-dark transition-all">
-              Return to Home <ArrowRight size={20} />
-            </Link>
           </div>
         </div>
       </div>
@@ -168,7 +171,7 @@ export default function RegisterPage() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 pt-32 pb-20">
+    <div className="min-h-screen bg-slate-50 py-20">
       <div className="max-w-3xl mx-auto px-4">
         <div className="mb-10 text-center">
           <h1 className="text-4xl font-bold font-display text-slate-900 mb-4">Trainee Registration</h1>
@@ -242,6 +245,7 @@ export default function RegisterPage() {
                 >
                   {photoPreview ? (
                     <>
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img src={photoPreview} alt="Preview" className="w-full h-full object-cover" />
                       <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white text-sm font-medium">
                         Change

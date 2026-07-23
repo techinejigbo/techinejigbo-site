@@ -105,8 +105,29 @@ export default function ExamsPage() {
           totalQuestions: questions.length,
           completedAt: new Date().toISOString()
         });
+
+        if (percentage >= 70) {
+          const courseCode = studentInfo.course.toUpperCase();
+          const cleanName = studentInfo.fullName.replace(/\s+/g, '').substring(0, 4).toUpperCase();
+          const timestamp = Math.floor(Date.now() / 1000).toString().slice(-4);
+          const certificateId = `TE-${courseCode}-2026-${cleanName}-${timestamp}`;
+
+          const { saveCertificate } = await import('@techinejigbo/firebase/src/firestore');
+          await saveCertificate({
+            traineeId: trainee.uid,
+            examId: studentInfo.course,
+            course: studentInfo.course,
+            score: percentage,
+            correctCount,
+            totalQuestions: questions.length,
+            elapsedSeconds: finalSeconds,
+            issueDate: new Date().toISOString(),
+            status: 'pending',
+            certificateId
+          });
+        }
       } catch (err) {
-        console.error("Failed to save exam score to Firestore:", err);
+        console.error("Failed to save exam score or certificate to Firestore:", err);
       }
     }
   };

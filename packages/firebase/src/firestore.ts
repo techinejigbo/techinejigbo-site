@@ -78,7 +78,7 @@ export interface TraineeData {
   course: 'web-development' | 'graphic-design';
   createdAt: string;
   passportPhotoBase64?: string;
-  status?: 'active' | 'suspended';
+  status?: 'active' | 'suspended' | 'pending';
 }
 
 export interface ExamRecord {
@@ -627,3 +627,59 @@ export const deleteGalleryItem = async (id: string) => {
     throw error;
   }
 };
+
+// --- Certificates ---
+
+export interface CertificateRecord {
+  id: string;
+  traineeId: string;
+  examId: string;
+  course: string;
+  score: number;
+  correctCount: number;
+  totalQuestions: number;
+  elapsedSeconds: number;
+  issueDate: string;
+  status: 'pending' | 'approved';
+  certificateId: string;
+}
+
+export const saveCertificate = async (cert: Partial<CertificateRecord>) => {
+  try {
+    const docRef = cert.id ? doc(db, 'certificates', cert.id) : doc(collection(db, 'certificates'));
+    await setDoc(docRef, { ...cert, id: docRef.id }, { merge: true });
+    return { success: true, id: docRef.id };
+  } catch (error) {
+    console.error("Error saving certificate:", error);
+    throw error;
+  }
+};
+
+export const subscribeToCertificates = (callback: (certs: CertificateRecord[]) => void, traineeId?: string) => {
+  const q = traineeId 
+    ? query(collection(db, 'certificates'), where('traineeId', '==', traineeId))
+    : query(collection(db, 'certificates'));
+    
+  return onSnapshot(q, (snapshot) => {
+    const certs: CertificateRecord[] = [];
+    snapshot.forEach((doc) => {
+      certs.push(doc.data() as CertificateRecord);
+    });
+    callback(certs.sort((a, b) => new Date(b.issueDate).getTime() - new Date(a.issueDate).getTime()));
+  }, (error) => {
+    console.error("Error in subscribeToCertificates:", error);
+    callback([]);
+  });
+};
+
+export const updateCertificateStatus = async (id: string, status: 'pending' | 'approved') => {
+  try {
+    const docRef = doc(db, 'certificates', id);
+    await updateDoc(docRef, { status });
+    return { success: true };
+  } catch (error) {
+    console.error("Error updating certificate status:", error);
+    throw error;
+  }
+};
+

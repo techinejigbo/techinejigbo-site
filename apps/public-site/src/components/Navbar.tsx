@@ -55,12 +55,6 @@ export default function Navbar() {
                 Contact
               </Link>
               <Link
-                href="/register"
-                className="text-brand-orange border border-brand-orange px-5 py-2.5 rounded-full text-sm font-semibold hover:bg-brand-orange-light/10 transition-colors"
-              >
-                Register
-              </Link>
-              <Link
                 href="/get-involved"
                 className="bg-brand-orange text-white px-5 py-2.5 rounded-full text-sm font-semibold hover:bg-brand-orange-dark transition-colors shadow-sm hover:shadow-md"
               >
@@ -108,13 +102,6 @@ export default function Navbar() {
               Contact
             </Link>
             <div className="pt-4 pb-2 px-3 space-y-3">
-              <Link
-                href="/register"
-                onClick={() => setIsOpen(false)}
-                className="block w-full text-center text-brand-orange border border-brand-orange px-5 py-3 rounded-xl text-base font-semibold hover:bg-brand-orange-light/10 transition-colors"
-              >
-                Register as Trainee
-              </Link>
               <Link
                 href="/get-involved"
                 onClick={() => setIsOpen(false)}

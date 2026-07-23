@@ -1,5 +1,5 @@
 {
-  "name": "student-portal",
+  "name": "registration-app",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -9,14 +9,11 @@
     "lint": "eslint"
   },
   "dependencies": {
-    "@techinejigbo/firebase": "*",
-    "html2canvas": "^1.4.1",
-    "jspdf": "^4.2.1",
-    "lucide-react": "^0.477.0",
-    "motion": "^12.4.7",
-    "next": "16.2.10",
-    "react": "^19.0.0",
-    "react-dom": "^19.0.0"
+    "next": "16.2.11",
+    "react": "19.2.4",
+    "react-dom": "19.2.4",
+    "lucide-react": "^0.474.0",
+    "@techinejigbo/firebase": "*"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
@@ -24,7 +21,7 @@
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "eslint": "^9",
-    "eslint-config-next": "16.2.10",
+    "eslint-config-next": "16.2.11",
     "tailwindcss": "^4",
     "typescript": "^5"
   }

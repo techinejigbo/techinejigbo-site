@@ -39,6 +39,19 @@ export default function TraineesPage() {
     };
   }, []);
 
+  const handleApproveAccount = async (trainee: TraineeData) => {
+    setActiveDropdown(null);
+    if (window.confirm(`Are you sure you want to approve ${trainee.firstName}'s registration?`)) {
+      try {
+        await updateTraineeStatus(trainee.uid, 'active');
+        setTrainees(prev => prev.map(t => t.uid === trainee.uid ? { ...t, status: 'active' } : t));
+        toast.success("Account approved successfully.");
+      } catch (err) {
+        toast.error("Failed to approve account.");
+      }
+    }
+  };
+
   const handleStatusToggle = async (trainee: TraineeData) => {
     setActiveDropdown(null);
     const newStatus = trainee.status === 'suspended' ? 'active' : 'suspended';
@@ -155,12 +168,17 @@ export default function TraineesPage() {
                         <p className="text-xs text-slate-500">{trainee.traineeClass}</p>
                       </td>
                       <td className="px-6 py-4">
-                        <div className="text-sm font-medium text-slate-900">
-                          {trainee.program ? trainee.program.replace('-', ' ') : 'N/A'}
+                        <div className="text-sm font-medium text-slate-900 capitalize">
+                          {trainee.program ? trainee.program.replace(/-/g, ' ') : 'N/A'}
                         </div>
                       </td>
                       <td className="px-6 py-4">
-                        {isSuspended ? (
+                        {trainee.status === 'pending' ? (
+                          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-amber-50 text-amber-700 text-xs font-bold rounded-full">
+                            <span className="w-1.5 h-1.5 rounded-full bg-amber-500" />
+                            Pending
+                          </span>
+                        ) : isSuspended ? (
                           <span className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-rose-50 text-rose-700 text-xs font-bold rounded-full">
                             <span className="w-1.5 h-1.5 rounded-full bg-rose-500" />
                             Suspended
@@ -178,7 +196,7 @@ export default function TraineesPage() {
                             {bestExam.score}%
                           </span>
                         ) : (
-                          <span className="text-slate-400 font-normal">Pending</span>
+                          <span className="text-slate-400 font-normal">-</span>
                         )}
                       </td>
                       <td className="px-6 py-4 text-right relative">
@@ -195,17 +213,48 @@ export default function TraineesPage() {
                             <div className="fixed inset-0 z-10" onClick={() => setActiveDropdown(null)} />
                             <div className="absolute right-6 top-10 mt-2 w-48 bg-white border border-slate-200 rounded-lg shadow-xl z-20 overflow-hidden">
                               <div className="p-1">
-                                <button
-                                  onClick={() => handleStatusToggle(trainee)}
-                                  className={`w-full text-left px-3 py-2 text-sm flex items-center gap-2 rounded-md transition-colors ${
-                                    isSuspended 
-                                      ? 'text-emerald-700 hover:bg-emerald-50' 
-                                      : 'text-amber-700 hover:bg-amber-50'
-                                  }`}
-                                >
-                                  {isSuspended ? <CheckCircle2 size={16} /> : <ShieldAlert size={16} />}
-                                  {isSuspended ? 'Reactivate Account' : 'Suspend Account'}
-                                </button>
+                                {trainee.status === 'pending' && (
+                                  <button
+                                    onClick={() => handleApproveAccount(trainee)}
+                                    className="w-full text-left px-3 py-2 text-sm flex items-center gap-2 rounded-md transition-colors text-emerald-700 hover:bg-emerald-50"
+                                  >
+                                    <CheckCircle2 size={16} />
+                                    Approve Account
+                                  </button>
+                                )}
+                                {trainee.status !== 'pending' && (
+                                  <>
+                                    <button
+                                      onClick={async () => {
+                                        setActiveDropdown(null);
+                                        if (window.confirm(`Are you sure you want to mark ${trainee.firstName}'s account as pending?`)) {
+                                          try {
+                                            await updateTraineeStatus(trainee.uid, 'pending');
+                                            setTrainees(prev => prev.map(t => t.uid === trainee.uid ? { ...t, status: 'pending' } : t));
+                                            toast.success("Account marked as pending.");
+                                          } catch (err) {
+                                            toast.error("Failed to update status.");
+                                          }
+                                        }
+                                      }}
+                                      className="w-full text-left px-3 py-2 text-sm flex items-center gap-2 rounded-md transition-colors text-amber-700 hover:bg-amber-50"
+                                    >
+                                      <ShieldAlert size={16} />
+                                      Mark as Pending
+                                    </button>
+                                    <button
+                                      onClick={() => handleStatusToggle(trainee)}
+                                      className={`w-full text-left px-3 py-2 text-sm flex items-center gap-2 rounded-md transition-colors ${
+                                        isSuspended 
+                                          ? 'text-emerald-700 hover:bg-emerald-50' 
+                                          : 'text-amber-700 hover:bg-amber-50'
+                                      }`}
+                                    >
+                                      {isSuspended ? <CheckCircle2 size={16} /> : <ShieldAlert size={16} />}
+                                      {isSuspended ? 'Reactivate Account' : 'Suspend Account'}
+                                    </button>
+                                  </>
+                                )}
                                 <div className="h-px bg-slate-100 my-1" />
                                 <button
                                   onClick={() => handleDelete(trainee)}

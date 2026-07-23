@@ -1,11 +1,27 @@
 "use client";
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useStudent } from '../../../components/StudentProvider';
-import { User as UserIcon, Phone, Mail, MapPin, Award, Download } from 'lucide-react';
+import { User as UserIcon, Phone, Mail, MapPin, Award, Loader2 } from 'lucide-react';
+import { subscribeToCertificates, CertificateRecord } from '@techinejigbo/firebase/src/firestore';
+import CertificateCard from '../../../components/CertificateCard';
 
 export default function ProfilePage() {
   const { trainee } = useStudent();
+  const [certificates, setCertificates] = useState<CertificateRecord[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (!trainee) return;
+
+    const unsubscribe = subscribeToCertificates((certs) => {
+      // Only show approved certificates
+      setCertificates(certs.filter(c => c.status === 'approved'));
+      setLoading(false);
+    }, trainee.uid);
+
+    return () => unsubscribe();
+  }, [trainee]);
 
   if (!trainee) return null;
 
@@ -74,11 +90,37 @@ export default function ProfilePage() {
           </div>
         </div>
 
-        <div className="bg-slate-50 border border-slate-200 border-dashed rounded-xl p-10 text-center text-slate-500">
-          <Award size={48} className="mx-auto text-slate-300 mb-4" />
-          <p>No certificates available yet.</p>
-          <p className="text-xs mt-2">Certificates are automatically generated upon passing the Final Exam with a 70% or higher.</p>
-        </div>
+        {loading ? (
+          <div className="flex items-center justify-center py-12 text-slate-400">
+            <Loader2 size={24} className="animate-spin" />
+          </div>
+        ) : certificates.length === 0 ? (
+          <div className="bg-slate-50 border border-slate-200 border-dashed rounded-xl p-10 text-center text-slate-500">
+            <Award size={48} className="mx-auto text-slate-300 mb-4" />
+            <p>No certificates available yet.</p>
+            <p className="text-xs mt-2">Certificates are automatically generated upon passing the Final Exam with a 70% or higher and must be approved by an administrator.</p>
+          </div>
+        ) : (
+          <div className="space-y-8">
+            {certificates.map((cert) => (
+              <CertificateCard
+                key={cert.id}
+                studentName={`${trainee.firstName} ${trainee.lastName}`}
+                course={cert.course}
+                score={cert.score}
+                correctCount={cert.correctCount}
+                totalQuestions={cert.totalQuestions}
+                elapsedSeconds={cert.elapsedSeconds}
+                formattedDate={new Date(cert.issueDate).toLocaleDateString('en-US', {
+                  year: 'numeric',
+                  month: 'long',
+                  day: 'numeric',
+                })}
+                certificateId={cert.certificateId}
+              />
+            ))}
+          </div>
+        )}
       </div>
 
     </div>

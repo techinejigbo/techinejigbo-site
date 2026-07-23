@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { useStudent } from '../../../components/StudentProvider';
-import { getGlobalSettings, subscribeToGlobalSettings, saveExamScore, subscribeToExams, getQuestions, ExamRecord } from '@techinejigbo/firebase/src/firestore';
+import { getGlobalSettings, subscribeToGlobalSettings, saveExamScore, subscribeToExams, getQuestions, ExamRecord, QuestionData } from '@techinejigbo/firebase/src/firestore';
 import ExamInterface from '../../../components/ExamInterface';
 import ResultView from '../../../components/ResultView';
 import { StudentInfo } from '../../../types';
@@ -19,6 +19,7 @@ export default function ExamsPage() {
   const [score, setScore] = useState(0);
   const [examAnswers, setExamAnswers] = useState<Record<string, 'A' | 'B' | 'C' | 'D'>>({});
   const [examElapsedSeconds, setExamElapsedSeconds] = useState(0);
+  const [examQuestions, setExamQuestions] = useState<QuestionData[]>([]);
   const [pastExams, setPastExams] = useState<ExamRecord[]>([]);
 
   useEffect(() => {
@@ -82,6 +83,7 @@ export default function ExamsPage() {
 
     if (trainee && studentInfo) {
       const questions = await getQuestions(studentInfo.course);
+      setExamQuestions(questions);
       
       let correctCount = 0;
       questions.forEach((q) => {
@@ -131,7 +133,8 @@ export default function ExamsPage() {
       <div className="max-w-3xl mx-auto mt-10">
         <ResultView 
           student={studentInfo} 
-          answers={examAnswers as any}
+          questions={examQuestions}
+          answers={examAnswers}
           elapsedSeconds={examElapsedSeconds}
           onRetake={() => setIsExamCompleted(false)} 
           onExit={() => setIsExamCompleted(false)}
@@ -199,10 +202,10 @@ export default function ExamsPage() {
                   <p className="text-xs text-slate-400 font-mono mt-1">Completed: {new Date(exam.completedAt).toLocaleString()}</p>
                 </div>
                 <div className="text-right">
-                  <div className={`inline-flex px-3 py-1 rounded-full text-sm font-bold ${exam.score >= 80 ? 'bg-emerald-50 text-emerald-700' : 'bg-rose-50 text-rose-700'}`}>
+                  <div className={`inline-flex px-3 py-1 rounded-full text-sm font-bold ${exam.score >= 70 ? 'bg-emerald-50 text-emerald-700' : 'bg-rose-50 text-rose-700'}`}>
                     Score: {exam.score}%
                   </div>
-                  <p className="text-xs text-slate-500 mt-1">{exam.score >= 80 ? 'Passed' : 'Failed'}</p>
+                  <p className="text-xs text-slate-500 mt-1">{exam.score >= 70 ? 'Passed' : 'Failed'}</p>
                 </div>
               </div>
             ))}

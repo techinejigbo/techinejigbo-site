@@ -24,7 +24,7 @@ export default function DashboardOverview() {
   }, []);
 
   const activeTrainees = trainees.filter(t => t.status !== 'suspended').length;
-  const passedExams = exams.filter(e => e.score >= 80).length;
+  const passedExams = exams.filter(e => e.score >= 70).length;
 
   return (
     <div className="space-y-8 max-w-6xl">

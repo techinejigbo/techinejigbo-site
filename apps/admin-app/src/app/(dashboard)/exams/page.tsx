@@ -166,7 +166,7 @@ export default function ExamsPage() {
               ) : (
                 paginatedExams.map(exam => {
                   const trainee = trainees[exam.traineeId];
-                  const passed = exam.score >= 80;
+                  const passed = exam.score >= 70;
                   
                   return (
                     <tr key={exam.id || `${exam.traineeId}_${exam.completedAt}`} className="hover:bg-slate-50/50 transition-colors">

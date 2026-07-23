@@ -86,7 +86,7 @@ export default function Header({ student, timeSpentSeconds, onExit, isExamActive
           <div className="flex items-center gap-4 text-[10px] font-mono text-slate-500 uppercase tracking-widest font-bold">
             <div className="flex items-center gap-1 text-slate-600">
               <Award size={14} className="text-orange-600" />
-              <span>Pass Score: 80%</span>
+              <span>Pass Score: 70%</span>
             </div>
             <div className="flex items-center gap-1 text-slate-600">
               <FileText size={14} className="text-orange-600" />

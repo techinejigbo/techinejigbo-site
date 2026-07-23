@@ -77,7 +77,7 @@ export default function ProfilePage() {
         <div className="bg-slate-50 border border-slate-200 border-dashed rounded-xl p-10 text-center text-slate-500">
           <Award size={48} className="mx-auto text-slate-300 mb-4" />
           <p>No certificates available yet.</p>
-          <p className="text-xs mt-2">Certificates are automatically generated upon passing the Final Exam with an 80% or higher.</p>
+          <p className="text-xs mt-2">Certificates are automatically generated upon passing the Final Exam with a 70% or higher.</p>
         </div>
       </div>
 

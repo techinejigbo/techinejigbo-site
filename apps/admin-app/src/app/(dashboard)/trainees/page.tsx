@@ -174,7 +174,7 @@ export default function TraineesPage() {
                       </td>
                       <td className="px-6 py-4 font-mono font-bold">
                         {bestExam ? (
-                          <span className={bestExam.score >= 80 ? "text-emerald-600" : "text-rose-600"}>
+                          <span className={bestExam.score >= 70 ? "text-emerald-600" : "text-rose-600"}>
                             {bestExam.score}%
                           </span>
                         ) : (

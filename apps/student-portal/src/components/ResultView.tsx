@@ -6,19 +6,19 @@
 import React, { useState } from 'react';
 import { motion } from 'motion/react';
 import { Award, Check, ChevronDown, ChevronUp, Download, Printer, RefreshCw, RotateCcw, ShieldCheck, X } from 'lucide-react';
-import { Question, StudentInfo } from '../types';
-import { canvaQuestions, htmlQuestions } from '../questions';
+import { StudentInfo } from '../types';
+import { QuestionData } from '@techinejigbo/firebase/src/firestore';
 
 interface ResultViewProps {
   student: StudentInfo;
-  answers: Record<number, 'A' | 'B' | 'C' | 'D'>;
+  questions: QuestionData[];
+  answers: Record<string, 'A' | 'B' | 'C' | 'D'>;
   elapsedSeconds: number;
   onRetake: () => void;
   onExit: () => void;
 }
 
-export default function ResultView({ student, answers, elapsedSeconds, onRetake, onExit }: ResultViewProps) {
-  const questions: Question[] = student.course === 'graphic-design' ? canvaQuestions : htmlQuestions;
+export default function ResultView({ student, questions, answers, elapsedSeconds, onRetake, onExit }: ResultViewProps) {
   const [showReview, setShowReview] = useState(false);
 
   // Calculate score
@@ -30,7 +30,7 @@ export default function ResultView({ student, answers, elapsedSeconds, onRetake,
   });
 
   const percentage = Math.round((correctCount / questions.length) * 100);
-  const isPassed = percentage >= 80;
+  const isPassed = percentage >= 70;
 
   // Format date
   const formattedDate = new Date().toLocaleDateString('en-US', {
@@ -129,7 +129,7 @@ export default function ResultView({ student, answers, elapsedSeconds, onRetake,
                   ? <>Incredible job, {student.fullName}! You have successfully demonstrated your proficiency in <span className="text-slate-800 font-bold capitalize">
                       {student.course === 'graphic-design' ? 'Basic Graphic Design' : 'Basic Web Development'}
                     </span> with a passing score of {percentage}%. Your certification is ready below.</>
-                  : `You scored ${percentage}%, which is short of the required 80% passing mark (40 correct answers). Don't worry, failure is just a step to master. Review your answers below, study the materials, and try again.`}
+                  : `You scored ${percentage}%, which is short of the required 70% passing mark (35 correct answers). Don't worry, failure is just a step to master. Review your answers below, study the materials, and try again.`}
               </p>
             </div>
 

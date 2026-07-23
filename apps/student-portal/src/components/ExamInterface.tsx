@@ -130,7 +130,7 @@ export default function ExamInterface({ student, onExit, onSubmit }: ExamInterfa
             {student.course === 'graphic-design' ? 'Basic Graphic Design Quiz' : 'Basic Web Development Quiz'}
           </h1>
           <p className="text-[10px] font-mono text-slate-400 mt-1.5 uppercase tracking-wider font-bold">
-            Questions 1 to {totalQuestions} • Passing mark: 80% ({Math.ceil(totalQuestions * 0.8)} correct)
+            Questions 1 to {totalQuestions} • Passing mark: 70% ({Math.ceil(totalQuestions * 0.7)} correct)
           </p>
         </div>
 

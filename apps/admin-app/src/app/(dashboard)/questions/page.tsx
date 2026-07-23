@@ -55,6 +55,7 @@ export default function QuestionsPage() {
     try {
       for (const q of canvaQuestions) {
         await saveQuestion({
+          id: `graphic-design-${q.id}`,
           courseId: 'graphic-design',
           question: q.question,
           options: q.options,
@@ -63,6 +64,7 @@ export default function QuestionsPage() {
       }
       for (const q of htmlQuestions) {
         await saveQuestion({
+          id: `web-development-${q.id}`,
           courseId: 'web-development',
           question: q.question,
           options: q.options,
@@ -91,6 +93,22 @@ export default function QuestionsPage() {
       toast.success("Cleanup complete!");
     } catch (e) {
       toast.error("Error during cleanup.");
+    }
+    setIsSeeding(false);
+  };
+
+  const handleClearCurrentCourse = async () => {
+    if (!window.confirm(`Are you sure you want to DELETE ALL questions for '${activeCourse}'? This cannot be undone.`)) return;
+    setIsSeeding(true);
+    try {
+      const qsToDelete = questions.filter(q => q.courseId === activeCourse);
+      for (const q of qsToDelete) {
+        await deleteQuestion(q.id);
+      }
+      setQuestions(prev => prev.filter(q => q.courseId !== activeCourse));
+      toast.success(`Cleared all questions for ${activeCourse}.`);
+    } catch (e) {
+      toast.error("Error clearing questions.");
     }
     setIsSeeding(false);
   };
@@ -155,6 +173,14 @@ export default function QuestionsPage() {
               {isSeeding ? "Cleaning..." : "Cleanup Legacy Courses"}
             </button>
           ) : null}
+          <button 
+            onClick={handleClearCurrentCourse}
+            disabled={isSeeding || currentQuestions.length === 0}
+            className="flex items-center gap-2 px-4 py-2 bg-rose-100 hover:bg-rose-200 text-rose-700 rounded-lg text-sm font-semibold transition-colors disabled:opacity-50"
+          >
+            <Trash2 size={16} />
+            {isSeeding ? "Processing..." : "Clear Current Course"}
+          </button>
           <button 
             onClick={handleSeed}
             disabled={isSeeding}

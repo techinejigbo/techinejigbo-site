@@ -103,6 +103,10 @@ export default function CertificateCard({
             max-width: none !important;
           }
         }
+        .print-card *:not([class*='border']) {
+          border-color: rgba(0,0,0,0) !important;
+          outline-color: rgba(0,0,0,0) !important;
+        }
       ` }} />
       <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:justify-between mb-4 no-print px-1">
         <h2 className="text-xs sm:text-sm font-mono font-bold text-slate-700 flex items-center gap-2 uppercase tracking-wider">
@@ -138,7 +142,7 @@ export default function CertificateCard({
         <div 
           id="printable-certificate"
           ref={certificateRef}
-          className="print-card min-w-[720px] max-w-[960px] mx-auto bg-[#FDFCF7] text-[#18181B] p-8 sm:p-12 md:p-16 border-[12px] border-double border-[#C4953C] rounded-2xl relative shadow-lg text-center font-sans select-none"
+          className="print-card min-w-[720px] max-w-[960px] mx-auto bg-[#FDFCF7] text-[#18181B] p-8 sm:p-12 md:p-16 border-[12px] border-double border-[#C4953C] rounded-2xl relative shadow-[0_10px_15px_-3px_rgba(0,0,0,0.1)] text-center font-sans select-none"
         >
           {/* Fancy watermark background */}
           <div className="absolute inset-4 border border-[#E4E4E7] pointer-events-none rounded" />
@@ -214,7 +218,7 @@ export default function CertificateCard({
 
             {/* Seal */}
             <div className="flex flex-col items-center justify-center">
-              <div className="relative w-14 h-14 bg-[#C4953C] rounded-full flex items-center justify-center shadow shadow-[rgba(196,149,60,0.45)] border-4 border-[#FDFCF7]">
+              <div className="relative w-14 h-14 bg-[#C4953C] rounded-full flex items-center justify-center shadow-[0_4px_6px_-1px_rgba(196,149,60,0.45)] border-4 border-[#FDFCF7]">
                 <ShieldCheck size={26} className="text-[#FFFFFF]" />
                 <div className="absolute top-0 w-full text-[6px] text-[rgba(255,255,255,0.5)] text-center uppercase tracking-widest font-mono select-none">
                   ★ ★ ★

@@ -132,10 +132,10 @@ export default function CertificateCard({
         <div 
           id="printable-certificate"
           ref={certificateRef}
-          className="print-card min-w-[720px] max-w-[960px] mx-auto bg-[#FDFCF7] text-zinc-900 p-8 sm:p-12 md:p-16 border-[12px] border-double border-[#C4953C] rounded-2xl relative shadow-lg text-center font-sans select-none"
+          className="print-card min-w-[720px] max-w-[960px] mx-auto bg-[#FDFCF7] text-[#18181B] p-8 sm:p-12 md:p-16 border-[12px] border-double border-[#C4953C] rounded-2xl relative shadow-lg text-center font-sans select-none"
         >
           {/* Fancy watermark background */}
-          <div className="absolute inset-4 border border-zinc-200 pointer-events-none rounded" />
+          <div className="absolute inset-4 border border-[#E4E4E7] pointer-events-none rounded" />
           <div className="absolute inset-0 flex items-center justify-center opacity-[0.03] pointer-events-none select-none">
             <Award size={400} className="text-[#C4953C]" />
           </div>
@@ -150,15 +150,15 @@ export default function CertificateCard({
           <div className="mb-6">
             <div className="flex justify-center items-center gap-2 mb-4">
               <div className="flex items-center font-display font-bold text-xl tracking-tight">
-                <span className="bg-[#E37300] text-white px-2.5 py-1 rounded-l font-black">
+                <span className="bg-[#E37300] text-[#FFFFFF] px-2.5 py-1 rounded-l font-black">
                   Techin
                 </span>
-                <span className="bg-zinc-900 text-[#E37300] px-2.5 py-1 rounded-r font-black border border-zinc-900">
+                <span className="bg-[#18181B] text-[#E37300] px-2.5 py-1 rounded-r font-black border border-[#18181B]">
                   Ejigbo
                 </span>
               </div>
             </div>
-            <p className="font-mono text-[10px] tracking-[0.2em] text-zinc-400 uppercase font-bold">
+            <p className="font-mono text-[10px] tracking-[0.2em] text-[#A1A1AA] uppercase font-bold">
               Official Technical Competency Assessment
             </p>
             <h2 className="text-3xl sm:text-4xl font-display font-extrabold tracking-tight text-[#2D2311] mt-2 font-serif uppercase">
@@ -168,40 +168,40 @@ export default function CertificateCard({
 
           {/* Certificate Presentation Text */}
           <div className="space-y-4 max-w-xl mx-auto my-8">
-            <p className="italic text-zinc-500 font-serif text-sm">
+            <p className="italic text-[#71717A] font-serif text-sm">
               This is proudly presented to
             </p>
             
-            <h3 className="text-2xl sm:text-3xl font-bold text-[#E37300] tracking-wide border-b-2 border-zinc-200 pb-2 inline-block px-10 font-display uppercase">
+            <h3 className="text-2xl sm:text-3xl font-bold text-[#E37300] tracking-wide border-b-2 border-[#E4E4E7] pb-2 inline-block px-10 font-display uppercase">
               {studentName}
             </h3>
 
-            <p className="text-xs sm:text-sm text-zinc-600 leading-relaxed max-w-lg mx-auto mt-4 font-sans">
+            <p className="text-xs sm:text-sm text-[#52525B] leading-relaxed max-w-lg mx-auto mt-4 font-sans">
               for outstanding academic achievement, successfully completing all assessment tasks and meeting requirements of the rigorous certification curriculum in
             </p>
 
-            <p className="font-bold text-slate-800 text-lg uppercase tracking-wider mb-8">
+            <p className="font-bold text-[#1E293B] text-lg uppercase tracking-wider mb-8">
               {course === 'graphic-design' ? 'Basic Graphic Design' : 'Basic Web Development'}
             </p>
 
-            <p className="text-xs font-mono text-zinc-500">
-              with a verified score of <strong className="text-zinc-800">{correctCount} of {totalQuestions} ({score}%)</strong>
+            <p className="text-xs font-mono text-[#71717A]">
+              with a verified score of <strong className="text-[#27272A]">{correctCount} of {totalQuestions} ({score}%)</strong>
               {elapsedSeconds > 0 && (
-                <> completed in <strong className="text-zinc-800">{formatTime(elapsedSeconds)}</strong></>
+                <> completed in <strong className="text-[#27272A]">{formatTime(elapsedSeconds)}</strong></>
               )}
               .
             </p>
           </div>
 
           {/* Certificate Footer / Signatures & QR Code */}
-          <div className="grid grid-cols-3 gap-4 items-end mt-12 pt-6 border-t border-zinc-100 max-w-2xl mx-auto">
+          <div className="grid grid-cols-3 gap-4 items-end mt-12 pt-6 border-t border-[#F4F4F5] max-w-2xl mx-auto">
             {/* Instructor Sign */}
             <div className="text-center">
-              <div className="font-serif italic text-base sm:text-lg text-zinc-700 h-8 flex items-center justify-center select-none font-semibold">
+              <div className="font-serif italic text-base sm:text-lg text-[#3F3F46] h-8 flex items-center justify-center select-none font-semibold">
                 AbdulMuiz Jimoh
               </div>
-              <div className="w-full h-px bg-zinc-300 my-1.5" />
-              <p className="text-[10px] font-mono text-zinc-400 uppercase tracking-wider">
+              <div className="w-full h-px bg-[#D4D4D8] my-1.5" />
+              <p className="text-[10px] font-mono text-[#A1A1AA] uppercase tracking-wider">
                 Program Coordinator
               </p>
             </div>
@@ -209,30 +209,30 @@ export default function CertificateCard({
             {/* Seal */}
             <div className="flex flex-col items-center justify-center">
               <div className="relative w-14 h-14 bg-[#C4953C] rounded-full flex items-center justify-center shadow shadow-[rgba(196,149,60,0.45)] border-4 border-[#FDFCF7]">
-                <ShieldCheck size={26} className="text-white" />
+                <ShieldCheck size={26} className="text-[#FFFFFF]" />
                 <div className="absolute top-0 w-full text-[6px] text-[rgba(255,255,255,0.5)] text-center uppercase tracking-widest font-mono select-none">
                   ★ ★ ★
                 </div>
               </div>
-              <p className="text-[8px] font-mono font-bold text-zinc-400 mt-2 uppercase tracking-widest">
+              <p className="text-[8px] font-mono font-bold text-[#A1A1AA] mt-2 uppercase tracking-widest">
                 Verified Seal
               </p>
             </div>
 
             {/* Coordinator Sign */}
             <div className="text-center">
-              <div className="font-serif italic text-base sm:text-lg text-zinc-700 h-8 flex items-center justify-center select-none font-semibold">
+              <div className="font-serif italic text-base sm:text-lg text-[#3F3F46] h-8 flex items-center justify-center select-none font-semibold">
                 {course === 'graphic-design' ? 'Ganiyat Faruq' : 'Jafar Lihameed'}
               </div>
-              <div className="w-full h-px bg-zinc-300 my-1.5" />
-              <p className="text-[10px] font-mono text-zinc-400 uppercase tracking-wider">
+              <div className="w-full h-px bg-[#D4D4D8] my-1.5" />
+              <p className="text-[10px] font-mono text-[#A1A1AA] uppercase tracking-wider">
                 Lead Instructor
               </p>
             </div>
           </div>
 
           {/* Certificate Identification */}
-          <div className="flex items-center justify-between mt-10 pt-4 border-t border-zinc-100 text-[10px] font-mono text-zinc-400">
+          <div className="flex items-center justify-between mt-10 pt-4 border-t border-[#F4F4F5] text-[10px] font-mono text-[#A1A1AA]">
             <span>Date Issued: {formattedDate}</span>
             <span className="font-bold text-[#C4953C]">{certificateId}</span>
           </div>

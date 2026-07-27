@@ -146,16 +146,10 @@ export default function CertificateCard({
 
           {/* Certificate Header */}
           <div className="mb-6">
-            <div className="flex justify-center items-center gap-2 mb-4">
-              <div className="flex items-stretch font-display font-bold text-xl tracking-tight leading-none">
-                <div className="bg-[#E37300] text-[#FFFFFF] px-3 py-1.5 rounded-l font-black flex items-center justify-center">
-                  Techin
-                </div>
-                <div className="bg-[#18181B] text-[#E37300] px-3 py-1.5 rounded-r font-black flex items-center justify-center">
-                  Ejigbo
-                </div>
+              <div className="flex justify-center font-display font-bold text-2xl sm:text-3xl tracking-tight mb-4">
+                <span className="text-[#E37300] font-black">Techin</span>
+                <span className="text-[#18181B] font-black">Ejigbo</span>
               </div>
-            </div>
             <p className="font-mono text-[10px] tracking-[0.2em] text-[#A1A1AA] uppercase font-bold">
               Official Technical Competency Assessment
             </p>

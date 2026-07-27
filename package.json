@@ -12,6 +12,7 @@
   },
   "devDependencies": {
     "@types/node": "^22.14.0",
+    "lightningcss": "~1.33.0",
     "typescript": "~5.8.2"
   },
   "engines": {

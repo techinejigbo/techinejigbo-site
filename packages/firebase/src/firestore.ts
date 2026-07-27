@@ -337,7 +337,7 @@ export const saveExamScore = async (examData: ExamRecord) => {
 
 // --- Dashboard Admin Functions ---
 
-export const updateTraineeStatus = async (uid: string, status: 'active' | 'suspended') => {
+export const updateTraineeStatus = async (uid: string, status: 'active' | 'suspended' | 'pending') => {
   try {
     const docRef = doc(db, 'trainees', uid);
     await updateDoc(docRef, { status });

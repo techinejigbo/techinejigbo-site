@@ -33,20 +33,20 @@ export default function ProfilePage() {
         <div className="h-32 bg-brand-orange-light/20 relative">
           <div className="absolute top-0 right-0 w-64 h-64 bg-brand-orange/10 rounded-full blur-3xl -mr-20 -mt-20 pointer-events-none" />
         </div>
-        <div className="px-8 pb-8 relative">
-          <div className="flex flex-col sm:flex-row sm:items-end gap-6 -mt-16 mb-6">
-            <div className="w-32 h-32 rounded-xl bg-slate-200 border-4 border-white shadow-md overflow-hidden relative z-10 shrink-0">
+        <div className="px-5 sm:px-8 pb-6 sm:pb-8 relative">
+          <div className="flex flex-col sm:flex-row sm:items-end items-center text-center sm:text-left gap-4 sm:gap-6 -mt-16 mb-6">
+            <div className="w-28 h-28 sm:w-32 sm:h-32 rounded-xl bg-slate-200 border-4 border-white shadow-md overflow-hidden relative z-10 shrink-0">
               {trainee.passportPhotoBase64 ? (
                 <img src={trainee.passportPhotoBase64} alt="Profile" className="w-full h-full object-cover" />
               ) : (
-                <div className="w-full h-full flex items-center justify-center text-slate-400 text-4xl uppercase font-bold bg-slate-100">
+                <div className="w-full h-full flex items-center justify-center text-slate-400 text-3xl sm:text-4xl uppercase font-bold bg-slate-100">
                   {trainee.firstName[0]}{trainee.lastName[0]}
                 </div>
               )}
             </div>
-            <div className="pb-2">
-              <h1 className="text-3xl font-display font-bold text-slate-900">{trainee.firstName} {trainee.lastName}</h1>
-              <p className="text-sm font-mono text-slate-500 uppercase tracking-wider mt-1">TechinEjigbo Trainee</p>
+            <div className="pb-1 sm:pb-2 mt-2 sm:mt-0">
+              <h1 className="text-2xl sm:text-3xl font-display font-bold text-slate-900">{trainee.firstName} {trainee.lastName}</h1>
+              <p className="text-[11px] sm:text-sm font-mono text-slate-500 uppercase tracking-wider mt-1">TechinEjigbo Trainee</p>
             </div>
           </div>
 
@@ -79,14 +79,14 @@ export default function ProfilePage() {
       </div>
 
       {/* Certificate Wallet */}
-      <div className="bg-white border border-slate-200 rounded-2xl p-8 shadow-sm">
-        <div className="flex items-center gap-3 mb-6">
-          <div className="p-2 bg-brand-orange-light/20 text-brand-orange rounded-lg">
-            <Award size={24} />
+      <div className="bg-white border border-slate-200 rounded-2xl p-5 sm:p-8 shadow-sm">
+        <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4 mb-6">
+          <div className="p-2 sm:p-3 bg-brand-orange-light/20 text-brand-orange rounded-lg w-fit">
+            <Award size={24} className="sm:w-8 sm:h-8" />
           </div>
           <div>
-            <h2 className="text-2xl font-display font-bold text-slate-900">Certificate Wallet</h2>
-            <p className="text-sm text-slate-500">View and download your official certifications.</p>
+            <h2 className="text-xl sm:text-2xl font-display font-bold text-slate-900">Certificate Wallet</h2>
+            <p className="text-xs sm:text-sm text-slate-500 mt-0.5">View and download your official certifications.</p>
           </div>
         </div>
 

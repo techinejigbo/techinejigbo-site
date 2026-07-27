@@ -104,26 +104,28 @@ export default function CertificateCard({
           }
         }
       ` }} />
-      <div className="flex items-center justify-between mb-4 no-print px-1">
-        <h2 className="text-sm font-mono font-bold text-slate-700 flex items-center gap-2 uppercase tracking-wider">
-          <Award className="text-orange-600 animate-spin" size={18} />
-          Verified Certification Paper
+      <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:justify-between mb-4 no-print px-1">
+        <h2 className="text-xs sm:text-sm font-mono font-bold text-slate-700 flex items-center gap-2 uppercase tracking-wider">
+          <Award className="text-orange-600 sm:animate-spin" size={16} />
+          Verified Certification
         </h2>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 w-full sm:w-auto">
           <button
             onClick={handleDownload}
             disabled={isDownloading}
             className="text-[10px] text-white hover:bg-orange-700 bg-orange-600 font-mono font-bold flex items-center gap-1 cursor-pointer px-3 py-1.5 rounded uppercase tracking-wider transition-colors disabled:opacity-50"
           >
-            {isDownloading ? <Loader2 size={12} className="animate-spin" /> : <Download size={12} />}
-            Download PDF
+            {isDownloading ? <Loader2 size={14} className="animate-spin" /> : <Download size={14} />}
+            <span className="hidden sm:inline">Download PDF</span>
+            <span className="sm:hidden">PDF</span>
           </button>
           <button
             onClick={handlePrint}
-            className="text-[10px] text-orange-600 hover:text-orange-700 font-mono font-bold flex items-center gap-1 cursor-pointer bg-white border border-slate-200 px-3 py-1.5 rounded uppercase tracking-wider"
+            className="flex-1 sm:flex-none justify-center text-[11px] sm:text-[10px] text-orange-600 hover:text-orange-700 font-mono font-bold flex items-center gap-1.5 cursor-pointer bg-white border border-slate-200 px-3 py-2 sm:py-1.5 rounded uppercase tracking-wider shadow-sm"
           >
-            <Printer size={12} />
-            Print Version
+            <Printer size={14} />
+            <span className="hidden sm:inline">Print Version</span>
+            <span className="sm:hidden">Print</span>
           </button>
         </div>
       </div>

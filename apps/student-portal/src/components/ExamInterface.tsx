@@ -26,6 +26,7 @@ export default function ExamInterface({ student, onExit, onSubmit }: ExamInterfa
   const [currentPage, setCurrentPage] = useState(0); 
   const [elapsedSeconds, setElapsedSeconds] = useState(0);
   const [showSubmitModal, setShowSubmitModal] = useState(false);
+  const [showMobileNav, setShowMobileNav] = useState(false);
   const topRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -152,10 +153,10 @@ export default function ExamInterface({ student, onExit, onSubmit }: ExamInterfa
       </div>
 
       {/* Grid: Left - Questions (8 Cols), Right - Navigation Grid & Actions (4 Cols) */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+      <div className="flex flex-col lg:grid lg:grid-cols-12 gap-8 items-start">
         
         {/* Left Side: Questions Container */}
-        <div className="lg:col-span-8 space-y-6">
+        <div className="w-full lg:col-span-8 space-y-6 order-2 lg:order-1">
           <AnimatePresence mode="wait">
             <motion.div
               key={currentPage}
@@ -262,10 +263,20 @@ export default function ExamInterface({ student, onExit, onSubmit }: ExamInterfa
         </div>
 
         {/* Right Side: Navigation Grid & Real-time Stats */}
-        <div className="lg:col-span-4 space-y-6 lg:sticky lg:top-24">
+        <div className="w-full lg:col-span-4 lg:sticky lg:top-24 order-1 lg:order-2">
           
-          {/* 50-Item Navigation Grid Card */}
-          <div className="bg-white border border-slate-200 rounded-lg p-5 shadow-sm">
+          {/* Mobile Navigator Toggle */}
+          <button 
+            onClick={() => setShowMobileNav(!showMobileNav)}
+            className="w-full lg:hidden flex items-center justify-between bg-white border border-slate-200 p-4 rounded-lg shadow-sm text-xs font-bold font-mono text-slate-800 uppercase tracking-wider mb-4"
+          >
+            <span className="flex items-center gap-2"><HelpCircle size={14} className="text-orange-600"/> Menu & Navigator</span>
+            <span className="bg-orange-50 text-orange-600 px-3 py-1 rounded border border-orange-200">{showMobileNav ? 'Hide' : 'Show'}</span>
+          </button>
+
+          <div className={`space-y-6 ${showMobileNav ? 'block' : 'hidden lg:block'}`}>
+            {/* 50-Item Navigation Grid Card */}
+            <div className="bg-white border border-slate-200 rounded-lg p-5 shadow-sm">
             <div className="flex items-center justify-between mb-4 pb-3 border-b border-slate-100">
               <h3 className="text-xs font-bold text-slate-800 uppercase tracking-wider flex items-center gap-1.5 font-mono">
                 <HelpCircle size={14} className="text-orange-600" />
@@ -330,6 +341,7 @@ export default function ExamInterface({ student, onExit, onSubmit }: ExamInterfa
             >
               Submit Exam
             </button>
+          </div>
           </div>
         </div>
       </div>

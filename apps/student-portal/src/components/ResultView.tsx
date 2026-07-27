@@ -68,14 +68,14 @@ export default function ResultView({ student, questions, answers, elapsedSeconds
           
           {/* Circular Score Visual (5 cols) */}
           <div className="md:col-span-5 flex flex-col items-center text-center">
-            <div className="relative w-44 h-44 flex items-center justify-center">
+            <div className="relative w-32 h-32 sm:w-44 sm:h-44 flex items-center justify-center">
               {/* Outer Glow Ring */}
               <div className={`absolute inset-0 rounded-full blur-xl opacity-20 ${
                 isPassed ? 'bg-emerald-100' : 'bg-rose-100'
               }`} />
               
               {/* SVG circular progress */}
-              <svg className="w-full h-full transform -rotate-90">
+              <svg viewBox="0 0 176 176" className="w-full h-full transform -rotate-90">
                 <circle
                   cx="88"
                   cy="88"

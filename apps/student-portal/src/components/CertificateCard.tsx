@@ -127,6 +127,10 @@ export default function CertificateCard({
           </button>
         </div>
       </div>
+      
+      <p className="text-[10px] text-slate-400 font-mono text-center md:hidden mb-2 uppercase tracking-widest animate-pulse">
+        Swipe horizontally to view full certificate
+      </p>
 
       <div className="bg-white border border-slate-200 p-1 sm:p-4 rounded-lg overflow-x-auto shadow-sm">
         <div 

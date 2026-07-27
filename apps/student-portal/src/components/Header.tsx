@@ -55,7 +55,7 @@ export default function Header({ student, timeSpentSeconds, onExit, isExamActive
               <span className="font-medium max-w-[120px] sm:max-w-[200px] truncate text-xs uppercase font-mono tracking-wide">
                 {student.fullName}
               </span>
-              <span className="bg-brand-orange/10 text-brand-orange-dark px-3 py-1 rounded-full text-xs font-bold font-mono tracking-wider">
+              <span className="hidden sm:inline-block bg-brand-orange/10 text-brand-orange-dark px-3 py-1 rounded-full text-[10px] sm:text-xs font-bold font-mono tracking-wider">
                 {student.course === 'graphic-design' ? 'Graphic Design' : 'Web Development'}
               </span>
             </div>

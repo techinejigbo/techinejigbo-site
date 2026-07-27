@@ -225,6 +225,62 @@ export const deleteMaterial = async (id: string) => {
   }
 };
 
+export const backfillMissingCertificates = async () => {
+  try {
+    const examsSnapshot = await getDocs(collection(db, 'exams'));
+    const certsSnapshot = await getDocs(collection(db, 'certificates'));
+    
+    const existingCerts = new Set<string>();
+    certsSnapshot.forEach(doc => {
+      const data = doc.data() as CertificateRecord;
+      existingCerts.add(`${data.traineeId}_${data.examId}`);
+    });
+
+    let generatedCount = 0;
+
+    for (const docSnap of examsSnapshot.docs) {
+      const exam = docSnap.data() as ExamRecord;
+      const key = `${exam.traineeId}_${exam.examId}`;
+      
+      // If score is >= 70 and no certificate exists yet
+      if (exam.score >= 70 && !existingCerts.has(key)) {
+        // Generate certificateId
+        const traineeData = await getTraineeData(exam.traineeId);
+        if (!traineeData) continue;
+        
+        const courseCode = exam.examId.toUpperCase();
+        const cleanName = `${traineeData.firstName}${traineeData.lastName}`.replace(/\s+/g, '').substring(0, 4).toUpperCase();
+        const timestamp = Math.floor(Date.now() / 1000).toString().slice(-4);
+        const certificateId = `TE-${courseCode}-2026-${cleanName}-${timestamp}`;
+
+        const newCert: Partial<CertificateRecord> = {
+          traineeId: exam.traineeId,
+          examId: exam.examId,
+          course: exam.examId,
+          score: exam.score,
+          correctCount: Math.round((exam.score / 100) * exam.totalQuestions),
+          totalQuestions: exam.totalQuestions,
+          elapsedSeconds: 0, // Fallback since it's not in ExamRecord
+          issueDate: exam.completedAt,
+          status: 'pending',
+          certificateId
+        };
+        
+        const certDocRef = doc(collection(db, 'certificates'));
+        await setDoc(certDocRef, { ...newCert, id: certDocRef.id }, { merge: true });
+        
+        generatedCount++;
+        existingCerts.add(key); // prevent duplicates in the same run
+      }
+    }
+    
+    return { success: true, count: generatedCount };
+  } catch (error) {
+    console.error("Error backfilling certificates:", error);
+    throw error;
+  }
+};
+
 export const getGlobalSettings = async (): Promise<GlobalSettings> => {
   try {
     const docRef = doc(db, 'settings', 'global');
@@ -683,3 +739,56 @@ export const updateCertificateStatus = async (id: string, status: 'pending' | 'a
   }
 };
 
+export const backfillMissingCertificates = async () => {
+  try {
+    const examsSnapshot = await getDocs(collection(db, 'exams'));
+    const certsSnapshot = await getDocs(collection(db, 'certificates'));
+    
+    const existingCerts = new Set<string>();
+    certsSnapshot.forEach(docSnap => {
+      const data = docSnap.data() as CertificateRecord;
+      existingCerts.add(`${data.traineeId}_${data.examId}`);
+    });
+
+    let generatedCount = 0;
+
+    for (const docSnap of examsSnapshot.docs) {
+      const exam = docSnap.data() as ExamRecord;
+      const key = `${exam.traineeId}_${exam.examId}`;
+      
+      if (exam.score >= 70 && !existingCerts.has(key)) {
+        const traineeData = await getTraineeData(exam.traineeId);
+        if (!traineeData) continue;
+        
+        const courseCode = exam.examId.toUpperCase();
+        const cleanName = `${traineeData.firstName}${traineeData.lastName}`.replace(/\s+/g, '').substring(0, 4).toUpperCase();
+        const timestamp = Math.floor(new Date(exam.completedAt).getTime() / 1000).toString().slice(-4);
+        const certificateId = `TE-${courseCode}-2026-${cleanName}-${timestamp}`;
+
+        const newCert: Partial<CertificateRecord> = {
+          traineeId: exam.traineeId,
+          examId: exam.examId,
+          course: exam.examId,
+          score: exam.score,
+          correctCount: Math.round((exam.score / 100) * exam.totalQuestions),
+          totalQuestions: exam.totalQuestions,
+          elapsedSeconds: 0,
+          issueDate: exam.completedAt,
+          status: 'pending',
+          certificateId
+        };
+        
+        const certDocRef = doc(collection(db, 'certificates'));
+        await setDoc(certDocRef, { ...newCert, id: certDocRef.id }, { merge: true });
+        
+        generatedCount++;
+        existingCerts.add(key);
+      }
+    }
+    
+    return { success: true, count: generatedCount };
+  } catch (error) {
+    console.error("Error backfilling certificates:", error);
+    throw error;
+  }
+};

@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { Award, CheckCircle, Search, X } from 'lucide-react';
-import { CertificateRecord, subscribeToCertificates, updateCertificateStatus, getTraineeData, TraineeData } from '@techinejigbo/firebase/src/firestore';
+import { CertificateRecord, subscribeToCertificates, updateCertificateStatus, getTraineeData, TraineeData, backfillMissingCertificates } from '@techinejigbo/firebase/src/firestore';
 import CertificateCard from '../../../components/CertificateCard';
 import toast from 'react-hot-toast';
 
@@ -18,6 +18,7 @@ export default function CertificatesPage() {
   // Modal state
   const [selectedCert, setSelectedCert] = useState<CertificateWithTrainee | null>(null);
   const [isApproving, setIsApproving] = useState(false);
+  const [isBackfilling, setIsBackfilling] = useState(false);
 
   useEffect(() => {
     const unsubscribe = subscribeToCertificates(async (certs) => {
@@ -59,6 +60,26 @@ export default function CertificatesPage() {
     }
   };
 
+  const handleBackfill = async () => {
+    setIsBackfilling(true);
+    const loadingToast = toast.loading('Checking for missing certificates...');
+    try {
+      const result = await backfillMissingCertificates();
+      toast.dismiss(loadingToast);
+      if (result.count > 0) {
+        toast.success(`Successfully generated ${result.count} missing certificates!`);
+      } else {
+        toast.success('No missing certificates found. Everything is up to date.');
+      }
+    } catch (error) {
+      console.error(error);
+      toast.dismiss(loadingToast);
+      toast.error('Failed to generate missing certificates');
+    } finally {
+      setIsBackfilling(false);
+    }
+  };
+
   const filteredCerts = certificates.filter(c => 
     c.traineeName.toLowerCase().includes(search.toLowerCase()) ||
     c.certificateId.toLowerCase().includes(search.toLowerCase())
@@ -72,15 +93,24 @@ export default function CertificatesPage() {
           <p className="text-slate-500 text-sm mt-1">Manage and approve trainee certificates</p>
         </div>
         
-        <div className="relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
-          <input
-            type="text"
-            placeholder="Search certificates..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="pl-10 pr-4 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-orange/20 focus:border-brand-orange w-full sm:w-64"
-          />
+        <div className="flex items-center gap-3">
+          <button
+            onClick={handleBackfill}
+            disabled={isBackfilling}
+            className="px-4 py-2 bg-slate-900 text-white text-sm font-semibold rounded-lg hover:bg-slate-800 transition-colors disabled:opacity-50"
+          >
+            {isBackfilling ? 'Generating...' : 'Generate Missing Certs'}
+          </button>
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+            <input
+              type="text"
+              placeholder="Search certificates..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="pl-10 pr-4 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-orange/20 focus:border-brand-orange w-full sm:w-64"
+            />
+          </div>
         </div>
       </div>
 

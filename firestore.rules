@@ -37,6 +37,13 @@ service cloud.firestore {
       allow update, delete: if isAdmin();
     }
 
+    // Certificates Collection
+    match /certificates/{certificateId} {
+      allow read: if (request.auth != null && resource.data.traineeId == request.auth.uid) || isAdmin();
+      allow create: if (request.auth != null && request.resource.data.traineeId == request.auth.uid) || isAdmin();
+      allow update, delete: if isAdmin();
+    }
+
     // Settings Collection (Global app settings, like exam toggle)
     match /settings/{document=**} {
       // Anyone logged in can read settings, only admins can write

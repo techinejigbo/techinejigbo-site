@@ -117,19 +117,10 @@ export default function CertificateCard({
           <button
             onClick={handleDownload}
             disabled={isDownloading}
-            className="text-[10px] text-white hover:bg-orange-700 bg-orange-600 font-mono font-bold flex items-center gap-1 cursor-pointer px-3 py-1.5 rounded uppercase tracking-wider transition-colors disabled:opacity-50"
+            className="flex-1 sm:flex-none justify-center text-[11px] sm:text-[10px] text-white bg-orange-600 hover:bg-orange-700 disabled:opacity-50 font-mono font-bold flex items-center gap-1.5 cursor-pointer px-4 py-2 sm:py-1.5 rounded uppercase tracking-wider shadow-sm"
           >
             {isDownloading ? <Loader2 size={14} className="animate-spin" /> : <Download size={14} />}
-            <span className="hidden sm:inline">Download PDF</span>
-            <span className="sm:hidden">PDF</span>
-          </button>
-          <button
-            onClick={handlePrint}
-            className="flex-1 sm:flex-none justify-center text-[11px] sm:text-[10px] text-orange-600 hover:text-orange-700 font-mono font-bold flex items-center gap-1.5 cursor-pointer bg-white border border-slate-200 px-3 py-2 sm:py-1.5 rounded uppercase tracking-wider shadow-sm"
-          >
-            <Printer size={14} />
-            <span className="hidden sm:inline">Print Version</span>
-            <span className="sm:hidden">Print</span>
+            Download PDF
           </button>
         </div>
       </div>
@@ -159,13 +150,13 @@ export default function CertificateCard({
           {/* Certificate Header */}
           <div className="mb-6">
             <div className="flex justify-center items-center gap-2 mb-4">
-              <div className="flex items-center font-display font-bold text-xl tracking-tight">
-                <span className="bg-[#E37300] text-[#FFFFFF] px-2.5 py-1 rounded-l font-black">
+              <div className="flex items-stretch font-display font-bold text-xl tracking-tight leading-none">
+                <div className="bg-[#E37300] text-[#FFFFFF] px-3 py-1.5 rounded-l font-black flex items-center justify-center">
                   Techin
-                </span>
-                <span className="bg-[#18181B] text-[#E37300] px-2.5 py-1 rounded-r font-black border border-[#18181B]">
+                </div>
+                <div className="bg-[#18181B] text-[#E37300] px-3 py-1.5 rounded-r font-black flex items-center justify-center">
                   Ejigbo
-                </span>
+                </div>
               </div>
             </div>
             <p className="font-mono text-[10px] tracking-[0.2em] text-[#A1A1AA] uppercase font-bold">

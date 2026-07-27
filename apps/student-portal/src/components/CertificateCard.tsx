@@ -47,6 +47,7 @@ export default function CertificateCard({
       const element = certificateRef.current;
       const canvas = await html2canvas(element, {
         scale: 2,
+        useCORS: true,
         backgroundColor: '#FDFCF7',
         logging: false
       });
@@ -84,6 +85,25 @@ export default function CertificateCard({
 
   return (
     <div className="mb-12">
+      <style dangerouslySetInnerHTML={{ __html: `
+        @media print {
+          @page { size: landscape; margin: 0; }
+          body * { visibility: hidden; }
+          .print-card, .print-card * { visibility: visible; }
+          .print-card {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 100vw;
+            height: 100vh;
+            margin: 0 !important;
+            padding: 2rem !important;
+            box-shadow: none !important;
+            transform: none !important;
+            max-width: none !important;
+          }
+        }
+      ` }} />
       <div className="flex items-center justify-between mb-4 no-print px-1">
         <h2 className="text-sm font-mono font-bold text-slate-700 flex items-center gap-2 uppercase tracking-wider">
           <Award className="text-orange-600 animate-spin" size={18} />
@@ -165,7 +185,11 @@ export default function CertificateCard({
             </p>
 
             <p className="text-xs font-mono text-zinc-500">
-              with a verified score of <strong className="text-zinc-800">{correctCount} of {totalQuestions} ({score}%)</strong> completed in <strong className="text-zinc-800">{formatTime(elapsedSeconds)}</strong>.
+              with a verified score of <strong className="text-zinc-800">{correctCount} of {totalQuestions} ({score}%)</strong>
+              {elapsedSeconds > 0 && (
+                <> completed in <strong className="text-zinc-800">{formatTime(elapsedSeconds)}</strong></>
+              )}
+              .
             </p>
           </div>
 
@@ -174,7 +198,7 @@ export default function CertificateCard({
             {/* Instructor Sign */}
             <div className="text-center">
               <div className="font-serif italic text-base sm:text-lg text-zinc-700 h-8 flex items-center justify-center select-none font-semibold">
-                Oluwaseun A.
+                AbdulMuiz Jimoh
               </div>
               <div className="w-full h-px bg-zinc-300 my-1.5" />
               <p className="text-[10px] font-mono text-zinc-400 uppercase tracking-wider">
@@ -198,7 +222,7 @@ export default function CertificateCard({
             {/* Coordinator Sign */}
             <div className="text-center">
               <div className="font-serif italic text-base sm:text-lg text-zinc-700 h-8 flex items-center justify-center select-none font-semibold">
-                Adebayo O.
+                {course === 'graphic-design' ? 'Ganiyat Faruq' : 'Jafar Lihameed'}
               </div>
               <div className="w-full h-px bg-zinc-300 my-1.5" />
               <p className="text-[10px] font-mono text-zinc-400 uppercase tracking-wider">

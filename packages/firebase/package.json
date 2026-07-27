@@ -7,7 +7,10 @@
     "build": "echo 'No build needed for firebase package'"
   },
   "dependencies": {
-    "firebase": "^10.12.2"
+    "firebase": "^10.12.2",
+    "next": "^16.2.10",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
   },
   "devDependencies": {
     "typescript": "^5.0.0"

@@ -208,9 +208,9 @@ export default function CertificateCard({
 
             {/* Seal */}
             <div className="flex flex-col items-center justify-center">
-              <div className="relative w-14 h-14 bg-[#C4953C] rounded-full flex items-center justify-center shadow shadow-[#C4953C]/45 border-4 border-[#FDFCF7]">
+              <div className="relative w-14 h-14 bg-[#C4953C] rounded-full flex items-center justify-center shadow shadow-[rgba(196,149,60,0.45)] border-4 border-[#FDFCF7]">
                 <ShieldCheck size={26} className="text-white" />
-                <div className="absolute top-0 w-full text-[6px] text-white/50 text-center uppercase tracking-widest font-mono select-none">
+                <div className="absolute top-0 w-full text-[6px] text-[rgba(255,255,255,0.5)] text-center uppercase tracking-widest font-mono select-none">
                   ★ ★ ★
                 </div>
               </div>

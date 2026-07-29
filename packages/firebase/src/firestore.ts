@@ -118,6 +118,7 @@ export interface VolunteerData {
   expertise: string;
   linkedin: string;
   createdAt: string;
+  status?: 'pending' | 'contacted' | 'accepted' | 'rejected';
 }
 
 export interface ContactMessage {
@@ -561,6 +562,17 @@ export const saveVolunteer = async (v: Partial<VolunteerData>) => {
     return { success: true, id: docRef.id };
   } catch (error) {
     console.error("Error saving volunteer:", error);
+    throw error;
+  }
+};
+
+export const updateVolunteerStatus = async (id: string, status: 'pending' | 'contacted' | 'accepted' | 'rejected') => {
+  try {
+    const docRef = doc(db, 'volunteers', id);
+    await updateDoc(docRef, { status });
+    return { success: true };
+  } catch (error) {
+    console.error("Error updating volunteer status:", error);
     throw error;
   }
 };

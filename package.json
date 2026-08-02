@@ -20,8 +20,7 @@
   },
   "overrides": {
     "react": "^19.0.0",
-    "react-dom": "^19.0.0",
-    "styled-jsx": "5.1.6"
+    "react-dom": "^19.0.0"
   },
   "dependencies": {
     "canvg": "^4.0.3",

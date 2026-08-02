@@ -20,8 +20,9 @@ export default function Home() {
               TechinEjigbo equips underprivileged youths and teenagers in Ejigbo with world-class tech skills. From zero to hero, we’re building the next generation of developers, designers, and digital innovators.
             </p>
             <div className="flex flex-col sm:flex-row gap-4">
-              <Link href="/get-involved" className="inline-flex justify-center items-center gap-2 bg-brand-orange text-white px-8 py-4 rounded-full text-lg font-semibold hover:bg-brand-orange-dark transition-all hover:scale-105 shadow-lg shadow-brand-orange/20">
-                Sponsor a Student
+              <Link href="/donate" className="inline-flex justify-center items-center gap-2 bg-brand-orange text-white px-8 py-4 rounded-full text-lg font-semibold hover:bg-brand-orange-dark transition-all hover:scale-105 shadow-lg shadow-brand-orange/25">
+                <Heart size={20} className="fill-white" />
+                <span>Donate via Paystack</span>
               </Link>
               <Link href="/impact" className="inline-flex justify-center items-center gap-2 bg-white/10 backdrop-blur-md text-white border border-white/20 px-8 py-4 rounded-full text-lg font-semibold hover:bg-white/20 transition-all">
                 See Our Impact <ArrowRight size={20} />
@@ -120,8 +121,9 @@ export default function Home() {
             Your support can multiply this impact. Whether you want to sponsor a student's education, volunteer your time, or donate equipment, you make a direct difference.
           </p>
           <div className="flex flex-col sm:flex-row justify-center gap-4">
-            <Link href="/get-involved" className="bg-brand-orange text-white px-8 py-4 rounded-full text-lg font-semibold hover:bg-brand-orange-dark transition-all hover:scale-105 shadow-lg shadow-brand-orange/20">
-              Support Our Mission
+            <Link href="/donate" className="inline-flex items-center justify-center gap-2 bg-brand-orange text-white px-8 py-4 rounded-full text-lg font-semibold hover:bg-brand-orange-dark transition-all hover:scale-105 shadow-lg shadow-brand-orange/20">
+              <Heart size={20} className="fill-white" />
+              <span>Donate to the Fund</span>
             </Link>
             <Link href="/get-involved" className="bg-white/10 backdrop-blur-md text-white border border-white/20 px-8 py-4 rounded-full text-lg font-semibold hover:bg-white/20 transition-all">
               Volunteer With Us

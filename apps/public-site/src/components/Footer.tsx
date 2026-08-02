@@ -61,6 +61,12 @@ export default function Footer() {
             <h3 className="text-white font-semibold mb-6">Support Us</h3>
             <ul className="space-y-3 text-sm">
               <li>
+                <Link href="/donate" className="hover:text-brand-orange transition-colors font-medium text-white flex items-center gap-1.5">
+                  <span className="w-1.5 h-1.5 rounded-full bg-brand-orange"></span>
+                  Donate via Paystack
+                </Link>
+              </li>
+              <li>
                 <Link href="/get-involved" className="hover:text-brand-orange transition-colors">Sponsor a Student</Link>
               </li>
               <li>

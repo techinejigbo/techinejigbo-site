@@ -1,23 +1,26 @@
 "use client";
 
 import React, { useEffect, useState } from 'react';
-import { getAllTrainees, getAllExams, TraineeData, ExamRecord } from '@techinejigbo/firebase/src/firestore';
-import { Users, BookOpen, Award, TrendingUp, Settings, CheckSquare } from 'lucide-react';
+import { getAllTrainees, getAllExams, getDonations, TraineeData, ExamRecord, DonationRecord } from '@techinejigbo/firebase/src/firestore';
+import { Users, BookOpen, Award, TrendingUp, Settings, CheckSquare, Heart, DollarSign } from 'lucide-react';
 import Link from 'next/link';
 
 export default function DashboardOverview() {
   const [trainees, setTrainees] = useState<TraineeData[]>([]);
   const [exams, setExams] = useState<ExamRecord[]>([]);
+  const [donations, setDonations] = useState<DonationRecord[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     async function loadData() {
-      const [fetchedTrainees, fetchedExams] = await Promise.all([
+      const [fetchedTrainees, fetchedExams, fetchedDonations] = await Promise.all([
         getAllTrainees(),
-        getAllExams()
+        getAllExams(),
+        getDonations()
       ]);
       setTrainees(fetchedTrainees);
       setExams(fetchedExams);
+      setDonations(fetchedDonations);
       setLoading(false);
     }
     loadData();
@@ -25,6 +28,17 @@ export default function DashboardOverview() {
 
   const activeTrainees = trainees.filter(t => t.status !== 'suspended').length;
   const passedExams = exams.filter(e => e.score >= 70).length;
+  const totalDonations = donations
+    .filter(d => d.status === 'success')
+    .reduce((sum, d) => sum + (Number(d.amount) || 0), 0);
+
+  const formatCurrency = (amount: number) => {
+    return new Intl.NumberFormat('en-NG', {
+      style: 'currency',
+      currency: 'NGN',
+      maximumFractionDigits: 0
+    }).format(amount);
+  };
 
   return (
     <div className="space-y-8 max-w-6xl">
@@ -69,13 +83,13 @@ export default function DashboardOverview() {
 
         <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm flex flex-col justify-between">
           <div className="flex justify-between items-start mb-4">
-            <div className="w-10 h-10 rounded-lg bg-purple-50 text-purple-600 flex items-center justify-center shrink-0">
-              <Award size={20} />
+            <div className="w-10 h-10 rounded-lg bg-rose-50 text-brand-orange flex items-center justify-center shrink-0">
+              <Heart size={20} className="fill-brand-orange/20" />
             </div>
           </div>
           <div>
-            <h2 className="text-3xl font-display font-bold text-slate-900">{passedExams}</h2>
-            <p className="text-xs font-mono font-bold text-slate-400 uppercase tracking-wider mt-1">Certificates Earned</p>
+            <h2 className="text-3xl font-display font-bold text-slate-900">{formatCurrency(totalDonations)}</h2>
+            <p className="text-xs font-mono font-bold text-slate-400 uppercase tracking-wider mt-1">Donations Raised</p>
           </div>
         </div>
       </div>
@@ -110,13 +124,13 @@ export default function DashboardOverview() {
         <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-6">
           <h3 className="font-display font-bold text-lg text-slate-900 mb-4">Quick Actions</h3>
           <div className="grid grid-cols-2 gap-4">
+            <Link href="/donations" className="flex flex-col items-center justify-center p-6 bg-slate-50 hover:bg-brand-orange-light/5 border border-slate-100 hover:border-brand-orange/20 rounded-xl transition-all group">
+              <Heart size={24} className="text-slate-400 group-hover:text-brand-orange mb-3" />
+              <span className="text-sm font-semibold text-slate-700 group-hover:text-brand-orange">View Donations</span>
+            </Link>
             <Link href="/trainees" className="flex flex-col items-center justify-center p-6 bg-slate-50 hover:bg-brand-orange-light/5 border border-slate-100 hover:border-brand-orange/20 rounded-xl transition-all group">
               <Users size={24} className="text-slate-400 group-hover:text-brand-orange mb-3" />
               <span className="text-sm font-semibold text-slate-700 group-hover:text-brand-orange">Manage Trainees</span>
-            </Link>
-            <Link href="/settings" className="flex flex-col items-center justify-center p-6 bg-slate-50 hover:bg-brand-orange-light/5 border border-slate-100 hover:border-brand-orange/20 rounded-xl transition-all group">
-              <Settings size={24} className="text-slate-400 group-hover:text-brand-orange mb-3" />
-              <span className="text-sm font-semibold text-slate-700 group-hover:text-brand-orange">Invite Staff</span>
             </Link>
             <Link href="/exams" className="flex flex-col items-center justify-center p-6 bg-slate-50 hover:bg-brand-orange-light/5 border border-slate-100 hover:border-brand-orange/20 rounded-xl transition-all group">
               <BookOpen size={24} className="text-slate-400 group-hover:text-brand-orange mb-3" />

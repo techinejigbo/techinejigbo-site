@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { LayoutDashboard, Users, BookOpen, Settings, LogOut, HelpCircle, Menu, X, CheckSquare, FileText, Bell, HeartHandshake, MessageSquare, Image, Award } from 'lucide-react';
+import { LayoutDashboard, Users, BookOpen, Settings, LogOut, HelpCircle, Menu, X, CheckSquare, FileText, Bell, HeartHandshake, MessageSquare, Image, Award, Heart } from 'lucide-react';
 import { logoutUser } from '@techinejigbo/firebase/src/auth';
 import { useAdmin } from '../../components/AdminProvider';
 import { Toaster } from 'react-hot-toast';
@@ -19,6 +19,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
   const navItems = [
     { name: 'Overview', href: '/', icon: <LayoutDashboard size={20} /> },
+    { name: 'Donations', href: '/donations', icon: <Heart size={20} /> },
     { name: 'Trainees', href: '/trainees', icon: <Users size={20} /> },
     { name: 'Exams', href: '/exams', icon: <BookOpen size={20} /> },
     { name: 'Certificates', href: '/certificates', icon: <Award size={20} /> },
@@ -57,7 +58,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
         <nav className="flex-1 p-4 space-y-1 overflow-y-auto">
           {navItems.map((item) => {
-            const isActive = pathname === item.href || (item.href !== '/' && pathname.startsWith(item.href));
+            const isActive = pathname === item.href || (item.href !== '/' && pathname?.startsWith(item.href));
             return (
               <Link
                 key={item.name}
@@ -99,7 +100,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               <Menu size={24} />
             </button>
             <h1 className="font-display font-bold text-lg md:text-xl text-slate-900 capitalize tracking-tight">
-              {pathname === '/' ? 'Overview' : pathname.replace('/', '')}
+              {pathname === '/' ? 'Overview' : pathname?.replace('/', '')}
             </h1>
           </div>
           

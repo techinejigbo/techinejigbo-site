@@ -12,7 +12,7 @@ import Link from 'next/link';
 
 function SignupForm() {
   const searchParams = useSearchParams();
-  const defaultEmail = searchParams.get('email');
+  const defaultEmail = searchParams?.get('email');
 
   const [email, setEmail] = useState(defaultEmail || '');
   const [password, setPassword] = useState('');

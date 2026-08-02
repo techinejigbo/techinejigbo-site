@@ -750,3 +750,80 @@ export const updateCertificateStatus = async (id: string, status: 'pending' | 'a
     throw error;
   }
 };
+
+// --- Donations ---
+
+export interface DonationRecord {
+  id: string;
+  reference: string;
+  amount: number;
+  currency: string;
+  donorName: string;
+  donorEmail: string;
+  donorPhone?: string;
+  isAnonymous?: boolean;
+  purpose: string;
+  message?: string;
+  status: 'success' | 'pending' | 'failed';
+  channel?: string;
+  paidAt: string;
+  createdAt: string;
+  paystackResponse?: any;
+}
+
+export const saveDonation = async (donation: Partial<DonationRecord>) => {
+  try {
+    const docRef = donation.id ? doc(db, 'donations', donation.id) : doc(collection(db, 'donations'));
+    const dataToSave = {
+      ...donation,
+      id: docRef.id,
+      createdAt: donation.createdAt || new Date().toISOString()
+    };
+    await setDoc(docRef, dataToSave, { merge: true });
+    return { success: true, id: docRef.id };
+  } catch (error) {
+    console.error("Error saving donation:", error);
+    throw error;
+  }
+};
+
+export const getDonations = async (): Promise<DonationRecord[]> => {
+  try {
+    const q = query(collection(db, 'donations'));
+    const snapshot = await getDocs(q);
+    const donations: DonationRecord[] = [];
+    snapshot.forEach((docSnap) => {
+      donations.push({ id: docSnap.id, ...docSnap.data() } as DonationRecord);
+    });
+    return donations.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+  } catch (error) {
+    console.error("Error fetching donations:", error);
+    return [];
+  }
+};
+
+export const subscribeToDonations = (callback: (donations: DonationRecord[]) => void) => {
+  const q = query(collection(db, 'donations'));
+  return onSnapshot(q, (snapshot) => {
+    const donations: DonationRecord[] = [];
+    snapshot.forEach((docSnap) => {
+      donations.push({ id: docSnap.id, ...docSnap.data() } as DonationRecord);
+    });
+    callback(donations.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()));
+  }, (error) => {
+    console.error("Error in subscribeToDonations:", error);
+    callback([]);
+  });
+};
+
+export const updateDonationStatus = async (id: string, status: 'success' | 'pending' | 'failed') => {
+  try {
+    const docRef = doc(db, 'donations', id);
+    await updateDoc(docRef, { status });
+    return { success: true };
+  } catch (error) {
+    console.error("Error updating donation status:", error);
+    throw error;
+  }
+};
+

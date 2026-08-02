@@ -99,7 +99,7 @@ export default function PortalLayout({ children }: { children: React.ReactNode }
               <Menu size={20} />
             </button>
             <h2 className="text-xl font-display font-bold text-slate-900 capitalize">
-              {pathname.replace('/', '') || 'Dashboard'}
+              {pathname?.replace('/', '') || 'Dashboard'}
             </h2>
           </div>
           <div className="flex items-center gap-3">

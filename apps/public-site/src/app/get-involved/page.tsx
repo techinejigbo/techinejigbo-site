@@ -1,11 +1,15 @@
 "use client";
 
 import React, { useState } from 'react';
-import { Heart, Laptop, Users, Building2, Send, CheckCircle2 } from 'lucide-react';
+import Link from 'next/link';
+import { Heart, Laptop, Users, Building2, Send, CheckCircle2, ArrowRight } from 'lucide-react';
 import { saveVolunteer } from '@techinejigbo/firebase/src/firestore';
+import DonationModal from '@/components/DonationModal';
 
 export default function GetInvolvedPage() {
   const [activeTab, setActiveTab] = useState<'sponsor' | 'volunteer'>('sponsor');
+  const [donationModalOpen, setDonationModalOpen] = useState(false);
+  const [donationTier, setDonationTier] = useState(35000);
   
   const [formData, setFormData] = useState({
     firstName: '',
@@ -17,6 +21,11 @@ export default function GetInvolvedPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [error, setError] = useState('');
+
+  const handleOpenDonation = (amount = 35000) => {
+    setDonationTier(amount);
+    setDonationModalOpen(true);
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -85,8 +94,13 @@ export default function GetInvolvedPage() {
                   <div className="bg-orange-50 p-4 rounded-full w-fit mb-6 text-brand-orange"><Users size={32}/></div>
                   <h3 className="text-2xl font-bold font-display text-brand-dark mb-3">Sponsor a Student</h3>
                   <p className="text-slate-600 mb-6 flex-grow">Cover the complete training, mentorship, and certification costs for one student entering Cohort 2.</p>
-                  <button className="w-full bg-brand-orange text-white py-3 rounded-xl font-semibold hover:bg-brand-orange-dark transition-colors">
-                    Donate Now
+                  <button 
+                    type="button"
+                    onClick={() => handleOpenDonation(35000)}
+                    className="w-full bg-brand-orange text-white py-3.5 rounded-xl font-semibold hover:bg-brand-orange-dark transition-all flex items-center justify-center gap-2 shadow-sm cursor-pointer"
+                  >
+                    <span>Donate ₦35,000</span>
+                    <ArrowRight size={16} />
                   </button>
                 </div>
                 
@@ -95,18 +109,24 @@ export default function GetInvolvedPage() {
                   <div className="bg-white/10 p-4 rounded-full w-fit mb-6 text-brand-orange backdrop-blur-sm relative z-10"><Laptop size={32}/></div>
                   <h3 className="text-2xl font-bold font-display mb-3 relative z-10">Donate Equipment</h3>
                   <p className="text-slate-300 mb-6 flex-grow relative z-10">The biggest hurdle for our students is access to devices. Donate fairly used laptops, internet routers, or design tablets.</p>
-                  <button className="w-full bg-white text-brand-dark py-3 rounded-xl font-semibold hover:bg-slate-100 transition-colors relative z-10">
-                    Contact to Donate
-                  </button>
+                  <Link 
+                    href="/contact"
+                    className="w-full bg-white text-brand-dark py-3.5 rounded-xl font-semibold hover:bg-slate-100 transition-colors relative z-10 text-center block"
+                  >
+                    Contact to Donate Hardware
+                  </Link>
                 </div>
 
                 <div className="bg-white p-8 rounded-2xl shadow-sm border border-slate-100 flex flex-col">
                   <div className="bg-orange-50 p-4 rounded-full w-fit mb-6 text-brand-orange"><Building2 size={32}/></div>
                   <h3 className="text-2xl font-bold font-display text-brand-dark mb-3">Corporate Partner</h3>
                   <p className="text-slate-600 mb-6 flex-grow">Fund an entire cohort, provide a training facility, or partner your organization with our mission for widespread impact.</p>
-                  <button className="w-full border-2 border-brand-orange text-brand-orange py-3 rounded-xl font-semibold hover:bg-orange-50 transition-colors">
-                    View Partnership Deck
-                  </button>
+                  <Link 
+                    href="/contact"
+                    className="w-full border-2 border-brand-orange text-brand-orange py-3.5 rounded-xl font-semibold hover:bg-orange-50 transition-colors text-center block"
+                  >
+                    Partner with Us
+                  </Link>
                 </div>
               </div>
             ) : (
@@ -233,6 +253,14 @@ export default function GetInvolvedPage() {
           </div>
         </div>
       </section>
+
+      {/* Donation Modal */}
+      <DonationModal
+        isOpen={donationModalOpen}
+        onClose={() => setDonationModalOpen(false)}
+        defaultTier={donationTier}
+        defaultPurpose="Student Tuition & Training"
+      />
     </div>
   );
 }

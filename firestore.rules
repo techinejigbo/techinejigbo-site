@@ -93,5 +93,11 @@ service cloud.firestore {
       allow read: if true;
       allow write: if isAdmin();
     }
+    
+    // Donations Collection
+    match /donations/{donationId} {
+      allow create: if true;
+      allow read, update, delete: if isAdmin();
+    }
   }
 }

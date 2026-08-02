@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Menu, X, Code2 } from 'lucide-react';
+import { Menu, X, Code2, Heart } from 'lucide-react';
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
@@ -15,6 +15,7 @@ export default function Navbar() {
     { name: 'Programs', href: '/programs' },
     { name: 'Impact', href: '/impact' },
     { name: 'Gallery', href: '/gallery' },
+    { name: 'Donate', href: '/donate' },
   ];
 
   const isActive = (path: string) => pathname === path;
@@ -35,19 +36,19 @@ export default function Navbar() {
           </div>
           
           {/* Desktop Navigation */}
-          <div className="hidden md:flex md:items-center md:space-x-8">
+          <div className="hidden md:flex md:items-center md:space-x-7">
             {navigation.map((item) => (
               <Link
                 key={item.name}
                 href={item.href}
                 className={`text-sm font-medium transition-colors hover:text-brand-orange ${
-                  isActive(item.href) ? 'text-brand-orange' : 'text-slate-600'
+                  isActive(item.href) ? 'text-brand-orange font-semibold' : 'text-slate-600'
                 }`}
               >
                 {item.name}
               </Link>
             ))}
-            <div className="flex items-center space-x-4 ml-4">
+            <div className="flex items-center space-x-3 ml-2">
               <Link
                 href="/contact"
                 className="text-sm font-medium text-slate-600 hover:text-brand-orange transition-colors"
@@ -56,9 +57,16 @@ export default function Navbar() {
               </Link>
               <Link
                 href="/get-involved"
-                className="bg-brand-orange text-white px-5 py-2.5 rounded-full text-sm font-semibold hover:bg-brand-orange-dark transition-colors shadow-sm hover:shadow-md"
+                className="text-sm font-medium text-slate-600 hover:text-brand-orange transition-colors"
               >
                 Get Involved
+              </Link>
+              <Link
+                href="/donate"
+                className="inline-flex items-center gap-1.5 bg-brand-orange text-white px-5 py-2.5 rounded-full text-sm font-semibold hover:bg-brand-orange-dark transition-all shadow-sm hover:shadow-md hover:scale-105"
+              >
+                <Heart size={15} className="fill-white" />
+                <span>Donate</span>
               </Link>
             </div>
           </div>
@@ -101,13 +109,21 @@ export default function Navbar() {
             >
               Contact
             </Link>
+            <Link
+              href="/get-involved"
+              onClick={() => setIsOpen(false)}
+              className="block px-3 py-3 rounded-md text-base font-medium text-slate-600 hover:bg-slate-50 hover:text-brand-orange"
+            >
+              Get Involved
+            </Link>
             <div className="pt-4 pb-2 px-3 space-y-3">
               <Link
-                href="/get-involved"
+                href="/donate"
                 onClick={() => setIsOpen(false)}
-                className="block w-full text-center bg-brand-orange text-white px-5 py-3 rounded-xl text-base font-semibold hover:bg-brand-orange-dark transition-colors"
+                className="flex items-center justify-center gap-2 w-full text-center bg-brand-orange text-white px-5 py-3 rounded-xl text-base font-semibold hover:bg-brand-orange-dark transition-colors shadow-sm"
               >
-                Get Involved
+                <Heart size={18} className="fill-white" />
+                <span>Donate Now</span>
               </Link>
             </div>
           </div>

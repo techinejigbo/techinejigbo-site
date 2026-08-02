@@ -6,6 +6,11 @@ import Footer from "@/components/Footer";
 export const metadata: Metadata = {
   title: "TechinEjigbo | Empowering Youths Through Tech",
   description: "Equipping underprivileged youths and teenagers in Ejigbo with world-class tech skills. From zero to hero, we’re building the next generation of developers, designers, and digital innovators.",
+  icons: {
+    icon: "/TechinEjigboLogo.png",
+    shortcut: "/TechinEjigboLogo.png",
+    apple: "/TechinEjigboLogo.png",
+  },
 };
 
 export default function RootLayout({

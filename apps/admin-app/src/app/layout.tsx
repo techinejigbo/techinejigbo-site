@@ -5,6 +5,11 @@ import AdminProvider from "../components/AdminProvider";
 export const metadata: Metadata = {
   title: "TechinEjigbo Admin Portal",
   description: "Administrative portal for TechinEjigbo.",
+  icons: {
+    icon: "/TechinEjigboLogo.png",
+    shortcut: "/TechinEjigboLogo.png",
+    apple: "/TechinEjigboLogo.png",
+  },
 };
 
 export default function RootLayout({

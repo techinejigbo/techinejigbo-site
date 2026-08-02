@@ -4,6 +4,11 @@ import "./globals.css";
 export const metadata: Metadata = {
   title: "TechinEjigbo - Trainee Registration",
   description: "Register for TechinEjigbo programs.",
+  icons: {
+    icon: "/TechinEjigboLogo.png",
+    shortcut: "/TechinEjigboLogo.png",
+    apple: "/TechinEjigboLogo.png",
+  },
 };
 
 export default function RootLayout({

@@ -5,6 +5,11 @@ import StudentProvider from "../components/StudentProvider";
 export const metadata: Metadata = {
   title: "TechinEjigbo Student Portal",
   description: "Learning Hub for TechinEjigbo students.",
+  icons: {
+    icon: "/TechinEjigboLogo.png",
+    shortcut: "/TechinEjigboLogo.png",
+    apple: "/TechinEjigboLogo.png",
+  },
 };
 
 export default function RootLayout({

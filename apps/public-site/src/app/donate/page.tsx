@@ -6,7 +6,8 @@ import {
   Heart, Sparkles, ShieldCheck, Laptop, Zap, 
   GraduationCap, Award, Users, CheckCircle2, 
   ArrowRight, HelpCircle, ChevronDown, ChevronUp, 
-  Building2, Globe, Check
+  Wifi, Monitor, HardDrive, PackageCheck, Mail, Phone,
+  Check
 } from 'lucide-react';
 import DonationModal, { DONATION_TIERS } from '@/components/DonationModal';
 import { formatCurrency } from '@/lib/paystack';
@@ -21,26 +22,49 @@ export default function DonatePage() {
     setModalOpen(true);
   };
 
+  const hardwareItems = [
+    {
+      icon: <Laptop size={28} className="text-brand-orange" />,
+      title: "Laptops & MacBooks",
+      desc: "Working or gently used Windows, Mac, or Linux laptops with chargers. Essential for students' daily coding practicals."
+    },
+    {
+      icon: <Wifi size={28} className="text-brand-orange" />,
+      title: "Routers & MiFi Devices",
+      desc: "4G/5G mobile WiFi devices, network switches, and data subscriptions to keep students connected."
+    },
+    {
+      icon: <Monitor size={28} className="text-brand-orange" />,
+      title: "Monitors & Peripherals",
+      desc: "External displays, USB keyboards, mice, flash drives, external HDDs/SSDs, and USB hubs."
+    },
+    {
+      icon: <Zap size={28} className="text-brand-orange" />,
+      title: "Power Banks & UPS Units",
+      desc: "Portable power stations, UPS backup systems, and laptop power banks for stable electricity."
+    }
+  ];
+
   const faqs = [
     {
-      q: "How is my donation processed and is it secure?",
-      a: "All online transactions are securely encrypted and processed through Paystack, a PCI-DSS certified payment gateway. Your financial details are never stored on our servers."
+      q: "How is my online donation processed and is it secure?",
+      a: "All online transactions are securely processed through Paystack, a PCI-DSS certified and CBN-licensed payment gateway. We do not store your credit card or bank details on our servers."
+    },
+    {
+      q: "Can I donate physical laptops or computer hardware?",
+      a: "Yes! Lack of a laptop is the primary bottleneck for eager students. You can donate new or fairly used laptops, monitors, chargers, or MiFi devices. We securely wipe the hardware, install developer tooling, and assign it to an enrolled student."
+    },
+    {
+      q: "How will my financial donation be used?",
+      a: "100% of public donations directly fund student education: purchasing refurbished hardware, paying for high-speed fiber internet and power backup, learning materials, and capstone certification fees."
     },
     {
       q: "Can I donate from outside Nigeria?",
-      a: "Yes! Paystack supports international MasterCard, Visa, American Express cards, and Apple Pay. If you prefer international bank wire or PayPal/crypto, please reach out to techinejigbo@gmail.com."
-    },
-    {
-      q: "How will my donation be used?",
-      a: "100% of public donations directly support students in Ejigbo: purchasing laptops and monitors, funding high-speed internet connectivity and generator fuel, printing curriculum workbooks, and paying for professional certification exams."
+      a: "Yes! Our Paystack checkout accepts international cards (MasterCard, Visa, Apple Pay). For international bank wire transfers, please email us directly at techinejigbo@gmail.com."
     },
     {
       q: "Will I receive a receipt for my donation?",
-      a: "Yes! Immediately after your donation is completed, an automated digital receipt with a unique transaction reference is generated on-screen and sent to your email address."
-    },
-    {
-      q: "Can I sponsor an entire cohort or donate physical equipment?",
-      a: "Absolutely! If your organization would like to sponsor a complete cohort or donate laptops, routers, or smart boards, you can choose the 'Corporate Partner' option or contact us at techinejigbo@gmail.com."
+      a: "Yes! Immediately after your payment is confirmed, an official digital receipt with a unique transaction reference will be displayed on screen and sent to your email."
     }
   ];
 
@@ -49,7 +73,7 @@ export default function DonatePage() {
       icon: <GraduationCap size={32} className="text-brand-orange" />,
       percent: "45%",
       title: "Tuition & Expert Mentorship",
-      desc: "Providing 5 months of hands-on software development & design workshops led by seasoned industry engineers."
+      desc: "Providing 5 months of hands-on software development & design workshops led by industry mentors."
     },
     {
       icon: <Laptop size={32} className="text-brand-orange" />,
@@ -88,26 +112,26 @@ export default function DonatePage() {
             </h1>
             
             <p className="text-lg md:text-xl text-slate-300 mb-8 leading-relaxed max-w-2xl mx-auto text-balance">
-              Every Naira you donate provides a student with real programming skills, dedicated laptop access, and mentorship that breaks the cycle of underprivileged backgrounds.
+              Every Naira or laptop you donate provides an underprivileged student with real-world programming skills, dedicated workstation access, and life-changing mentorship.
             </p>
 
             <div className="flex flex-wrap justify-center gap-4">
               <button
                 type="button"
                 onClick={() => handleOpenDonateModal(35000)}
-                className="bg-brand-orange text-white px-8 py-4 rounded-full text-lg font-bold hover:bg-brand-orange-dark transition-all hover:scale-105 shadow-xl shadow-brand-orange/25 flex items-center gap-2"
+                className="bg-brand-orange text-white px-8 py-4 rounded-full text-lg font-bold hover:bg-brand-orange-dark transition-all hover:scale-105 shadow-xl shadow-brand-orange/25 flex items-center gap-2 cursor-pointer"
               >
                 <Heart size={20} className="fill-white" />
-                <span>Donate Now via Paystack</span>
+                <span>Donate Online via Paystack</span>
               </button>
               
-              <Link 
-                href="/impact"
+              <a 
+                href="#hardware-donations"
                 className="bg-white/10 backdrop-blur-md text-white border border-white/20 px-8 py-4 rounded-full text-lg font-semibold hover:bg-white/20 transition-all flex items-center gap-2"
               >
-                <span>View Our Impact</span>
-                <ArrowRight size={18} />
-              </Link>
+                <Laptop size={20} className="text-brand-orange" />
+                <span>Donate Hardware</span>
+              </a>
             </div>
           </div>
         </div>
@@ -137,13 +161,13 @@ export default function DonatePage() {
         </div>
       </section>
 
-      {/* Sponsorship Tiers Grid */}
+      {/* Giving Options Tiers Grid */}
       <section className="py-20 bg-slate-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-3xl mx-auto mb-16">
             <span className="text-xs uppercase font-bold tracking-widest text-brand-orange mb-2 block">Choose Your Level of Support</span>
             <h2 className="text-3xl sm:text-5xl font-bold font-display text-brand-dark mb-4">
-              Giving Options
+              Online Giving Options
             </h2>
             <p className="text-slate-600 text-lg leading-relaxed">
               Select a sponsorship tier or customize your gift. Every contribution directly expands our capacity for the upcoming cohort.
@@ -210,11 +234,89 @@ export default function DonatePage() {
                 <button
                   type="button"
                   onClick={() => handleOpenDonateModal(5000)}
-                  className="w-full py-3.5 rounded-2xl font-bold text-sm bg-white text-brand-dark hover:bg-brand-orange hover:text-white transition-all flex items-center justify-center gap-2"
+                  className="w-full py-3.5 rounded-2xl font-bold text-sm bg-white text-brand-dark hover:bg-brand-orange hover:text-white transition-all flex items-center justify-center gap-2 cursor-pointer"
                 >
                   <span>Choose Custom Amount</span>
                   <ArrowRight size={16} />
                 </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* HARDWARE & DEVICE DONATION SECTION */}
+      <section id="hardware-donations" className="py-20 bg-white border-t border-slate-100 scroll-mt-24">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="bg-slate-900 text-white rounded-3xl p-8 sm:p-12 lg:p-16 relative overflow-hidden">
+            <div className="absolute top-0 right-0 w-96 h-96 bg-brand-orange/15 rounded-full blur-3xl pointer-events-none"></div>
+
+            <div className="relative z-10">
+              <div className="inline-flex items-center gap-2 bg-brand-orange/20 border border-brand-orange/30 text-brand-orange-light px-3 py-1 rounded-full text-xs font-semibold mb-6">
+                <Laptop size={14} className="text-brand-orange" />
+                <span>Physical Equipment Drive</span>
+              </div>
+
+              <div className="grid lg:grid-cols-12 gap-12 items-center">
+                <div className="lg:col-span-6">
+                  <h2 className="text-3xl sm:text-5xl font-bold font-display tracking-tight mb-6 leading-tight">
+                    Donate Hardware & <br />
+                    <span className="text-transparent bg-clip-text bg-gradient-to-r from-brand-orange to-brand-orange-light">Laptops for Students</span>
+                  </h2>
+                  <p className="text-slate-300 text-base leading-relaxed mb-8">
+                    Lack of access to a laptop is the single biggest barrier for young people in Ejigbo seeking tech careers. Have a spare laptop, monitor, or internet router? Your gently used device will become a student's daily workstation.
+                  </p>
+
+                  <div className="space-y-4 mb-8">
+                    <div className="flex items-start gap-3">
+                      <PackageCheck size={20} className="text-brand-orange shrink-0 mt-0.5" />
+                      <span className="text-slate-300 text-sm">
+                        <strong className="text-white">Secure Data Wipe:</strong> We perform clean military-grade data wipes before installing developer tools.
+                      </span>
+                    </div>
+                    <div className="flex items-start gap-3">
+                      <PackageCheck size={20} className="text-brand-orange shrink-0 mt-0.5" />
+                      <span className="text-slate-300 text-sm">
+                        <strong className="text-white">Direct Handover:</strong> Hardware is assigned directly to verified students and tracked through their training.
+                      </span>
+                    </div>
+                    <div className="flex items-start gap-3">
+                      <PackageCheck size={20} className="text-brand-orange shrink-0 mt-0.5" />
+                      <span className="text-slate-300 text-sm">
+                        <strong className="text-white">Doorstep Pickup Available:</strong> We can arrange dispatch pickup anywhere in Lagos and major Nigerian cities.
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="flex flex-wrap gap-4">
+                    <Link
+                      href="/contact"
+                      className="bg-brand-orange text-white px-8 py-3.5 rounded-full font-bold text-sm hover:bg-brand-orange-dark transition-all hover:scale-105 shadow-lg shadow-brand-orange/30 inline-flex items-center gap-2"
+                    >
+                      <span>Contact Us to Donate Hardware</span>
+                      <ArrowRight size={16} />
+                    </Link>
+                    <a
+                      href="mailto:techinejigbo@gmail.com?subject=Hardware%20Donation%20Inquiry"
+                      className="bg-white/10 border border-white/20 text-white px-6 py-3.5 rounded-full font-bold text-sm hover:bg-white/20 transition-all inline-flex items-center gap-2"
+                    >
+                      <Mail size={16} />
+                      <span>techinejigbo@gmail.com</span>
+                    </a>
+                  </div>
+                </div>
+
+                <div className="lg:col-span-6 grid sm:grid-cols-2 gap-4">
+                  {hardwareItems.map((item, idx) => (
+                    <div key={idx} className="bg-slate-800/80 border border-slate-700/70 p-6 rounded-2xl">
+                      <div className="bg-white/10 p-3 rounded-xl w-fit mb-4 text-brand-orange">
+                        {item.icon}
+                      </div>
+                      <h4 className="text-base font-bold text-white mb-2">{item.title}</h4>
+                      <p className="text-slate-300 text-xs leading-relaxed">{item.desc}</p>
+                    </div>
+                  ))}
+                </div>
               </div>
             </div>
           </div>

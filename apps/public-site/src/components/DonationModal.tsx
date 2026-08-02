@@ -3,8 +3,7 @@
 import React, { useState } from 'react';
 import { 
   X, Heart, ShieldCheck, CheckCircle2, Copy, Check, 
-  Sparkles, Lock, ArrowRight, Building2, CreditCard, 
-  HelpCircle, RefreshCw, Share2
+  Sparkles, Lock, ArrowRight, Share2, RefreshCw
 } from 'lucide-react';
 import { initializePaystackDonation, formatCurrency, generateDonationReference } from '../lib/paystack';
 
@@ -62,7 +61,6 @@ export default function DonationModal({
   defaultTier = 35000,
   defaultPurpose = 'General Impact Fund'
 }: DonationModalProps) {
-  const [activeTab, setActiveTab] = useState<'paystack' | 'bank'>('paystack');
   const [selectedAmount, setSelectedAmount] = useState<number>(defaultTier);
   const [customAmount, setCustomAmount] = useState<string>('');
   const [isCustom, setIsCustom] = useState<boolean>(false);
@@ -79,7 +77,6 @@ export default function DonationModal({
   const [isLoading, setIsLoading] = useState(false);
   const [isVerified, setIsVerified] = useState(false);
   const [donationResult, setDonationResult] = useState<any>(null);
-  const [copiedBank, setCopiedBank] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState('');
 
   if (!isOpen) return null;
@@ -100,8 +97,6 @@ export default function DonationModal({
 
   const copyToClipboard = (text: string, type: string) => {
     navigator.clipboard.writeText(text);
-    setCopiedBank(type);
-    setTimeout(() => setCopiedBank(null), 2000);
   };
 
   const handleSubmitPayment = async (e: React.FormEvent) => {
@@ -236,34 +231,6 @@ export default function DonationModal({
               ? 'Your contribution directly empowers underprivileged youths in Ejigbo with tech skills, devices, and mentorship.'
               : '100% of public donations fund student training, internet connectivity, and hardware access.'}
           </p>
-
-          {/* Payment Method Tabs (hidden when verified) */}
-          {!isVerified && (
-            <div className="flex gap-2 mt-6 pt-4 border-t border-slate-700/60">
-              <button
-                type="button"
-                onClick={() => setActiveTab('paystack')}
-                className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold transition-all ${
-                  activeTab === 'paystack'
-                    ? 'bg-brand-orange text-white shadow-md'
-                    : 'bg-white/10 text-slate-300 hover:bg-white/20'
-                }`}
-              >
-                <CreditCard size={16} /> Pay Online (Paystack)
-              </button>
-              <button
-                type="button"
-                onClick={() => setActiveTab('bank')}
-                className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold transition-all ${
-                  activeTab === 'bank'
-                    ? 'bg-brand-orange text-white shadow-md'
-                    : 'bg-white/10 text-slate-300 hover:bg-white/20'
-                }`}
-              >
-                <Building2 size={16} /> Direct Bank Transfer
-              </button>
-            </div>
-          )}
         </div>
 
         {/* Modal Body */}
@@ -339,7 +306,7 @@ export default function DonationModal({
           )}
 
           {/* PAYSTACK ONLINE FLOW */}
-          {!isVerified && activeTab === 'paystack' && (
+          {!isVerified && (
             <form onSubmit={handleSubmitPayment} className="space-y-6">
               
               {/* Step 1: Select Amount */}
@@ -537,85 +504,6 @@ export default function DonationModal({
               </div>
 
             </form>
-          )}
-
-          {/* BANK TRANSFER FLOW */}
-          {!isVerified && activeTab === 'bank' && (
-            <div className="space-y-6 animate-in fade-in duration-200">
-              <div className="bg-orange-50/70 border border-orange-200 p-4 rounded-2xl text-sm text-slate-800">
-                <p className="font-semibold text-brand-dark flex items-center gap-1.5 mb-1">
-                  <Building2 size={18} className="text-brand-orange" />
-                  Direct Bank Wire Transfer (Nigeria)
-                </p>
-                <p className="text-slate-600 text-xs leading-relaxed">
-                  You can make a direct mobile transfer or internet banking payment to our dedicated community empowerment account.
-                </p>
-              </div>
-
-              {/* Bank Details Table */}
-              <div className="bg-slate-50 rounded-2xl p-6 border border-slate-200 space-y-4 font-sans">
-                <div className="flex justify-between items-center pb-3 border-b border-slate-200">
-                  <span className="text-xs font-semibold text-slate-500 uppercase">Bank Name</span>
-                  <span className="text-sm font-bold text-slate-900">Guaranty Trust Bank (GTBank)</span>
-                </div>
-
-                <div className="flex justify-between items-center pb-3 border-b border-slate-200">
-                  <span className="text-xs font-semibold text-slate-500 uppercase">Account Name</span>
-                  <span className="text-sm font-bold text-slate-900">TechinEjigbo Initiative</span>
-                </div>
-
-                <div className="flex justify-between items-center pb-3 border-b border-slate-200">
-                  <span className="text-xs font-semibold text-slate-500 uppercase">Account Number (NGN)</span>
-                  <div className="flex items-center gap-2">
-                    <span className="text-base font-mono font-bold text-brand-dark">0823456789</span>
-                    <button
-                      type="button"
-                      onClick={() => copyToClipboard('0823456789', 'acc')}
-                      className="p-1.5 hover:bg-slate-200 rounded-lg text-slate-600 transition-colors"
-                      title="Copy Account Number"
-                    >
-                      {copiedBank === 'acc' ? <Check size={16} className="text-emerald-600" /> : <Copy size={16} />}
-                    </button>
-                  </div>
-                </div>
-
-                <div className="flex justify-between items-center">
-                  <span className="text-xs font-semibold text-slate-500 uppercase">Transfer Remark / Memo</span>
-                  <div className="flex items-center gap-2">
-                    <span className="text-xs font-mono font-medium text-slate-700">DONATE-EJIGBO</span>
-                    <button
-                      type="button"
-                      onClick={() => copyToClipboard('DONATE-EJIGBO', 'remark')}
-                      className="p-1.5 hover:bg-slate-200 rounded-lg text-slate-600 transition-colors"
-                      title="Copy Remark"
-                    >
-                      {copiedBank === 'remark' ? <Check size={16} className="text-emerald-600" /> : <Copy size={16} />}
-                    </button>
-                  </div>
-                </div>
-              </div>
-
-              {/* Notification note */}
-              <div className="text-xs text-slate-500 space-y-2 bg-white p-4 rounded-xl border border-slate-100">
-                <p className="font-semibold text-slate-700 flex items-center gap-1">
-                  <HelpCircle size={14} className="text-brand-orange" />
-                  After making your transfer:
-                </p>
-                <p>
-                  Please send your transfer receipt or transaction date to <a href="mailto:techinejigbo@gmail.com" className="text-brand-orange font-semibold underline">techinejigbo@gmail.com</a> or WhatsApp us so we can issue your official acknowledgement receipt.
-                </p>
-              </div>
-
-              <div className="pt-2 flex justify-end">
-                <button
-                  type="button"
-                  onClick={onClose}
-                  className="px-6 py-3 bg-brand-dark text-white rounded-xl font-semibold text-sm hover:bg-slate-800 transition-colors"
-                >
-                  I have copied the details
-                </button>
-              </div>
-            </div>
           )}
 
         </div>

@@ -67,16 +67,19 @@ export default function Footer() {
                 </Link>
               </li>
               <li>
-                <Link href="/get-involved" className="hover:text-brand-orange transition-colors">Sponsor a Student</Link>
+                <Link href="/donate#hardware-donations" className="hover:text-brand-orange transition-colors">
+                  Donate Hardware
+                </Link>
               </li>
               <li>
-                <Link href="/get-involved" className="hover:text-brand-orange transition-colors">Volunteer</Link>
+                <Link href="/get-involved" className="hover:text-brand-orange transition-colors">
+                  Volunteer & Mentorship
+                </Link>
               </li>
               <li>
-                <Link href="/get-involved" className="hover:text-brand-orange transition-colors">Corporate Partnerships</Link>
-              </li>
-              <li>
-                <Link href="/contact" className="hover:text-brand-orange transition-colors">Contact Us</Link>
+                <Link href="/contact" className="hover:text-brand-orange transition-colors">
+                  Contact Us
+                </Link>
               </li>
             </ul>
           </div>

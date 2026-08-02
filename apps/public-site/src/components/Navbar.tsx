@@ -15,7 +15,6 @@ export default function Navbar() {
     { name: 'Programs', href: '/programs' },
     { name: 'Impact', href: '/impact' },
     { name: 'Gallery', href: '/gallery' },
-    { name: 'Donate', href: '/donate' },
   ];
 
   const isActive = (path: string) => pathname === path;

@@ -1,9 +1,46 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
-import { Plus, Trash2, Image as ImageIcon, UploadCloud, Loader2, X, Video } from 'lucide-react';
+import { Plus, Trash2, Image as ImageIcon, UploadCloud, Loader2, X, Video, Play } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { GalleryItem, subscribeToGalleryItems, saveGalleryItem, deleteGalleryItem } from '@techinejigbo/firebase/src/firestore';
+
+const parseVideoUrl = (url: string) => {
+  // Google Drive
+  const driveMatch = url.match(/(?:file\/d\/|id=)([a-zA-Z0-9_-]+)/);
+  if (driveMatch && driveMatch[1]) {
+    const fileId = driveMatch[1];
+    return {
+      embedUrl: `https://drive.google.com/file/d/${fileId}/preview`,
+      thumbnailUrl: `https://drive.google.com/thumbnail?id=${fileId}&sz=w1000`,
+    };
+  }
+
+  // YouTube
+  const ytMatch = url.match(/(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/);
+  if (ytMatch && ytMatch[1]) {
+    const ytId = ytMatch[1];
+    return {
+      embedUrl: `https://www.youtube-nocookie.com/embed/${ytId}?autoplay=1&modestbranding=1&rel=0`,
+      thumbnailUrl: `https://img.youtube.com/vi/${ytId}/hqdefault.jpg`,
+    };
+  }
+
+  // Vimeo
+  const vimeoMatch = url.match(/vimeo\.com\/(?:channels\/(?:\w+\/)?|groups\/([^\/]*)\/videos\/|album\/(\d+)\/video\/|)(\d+)(?:$|\/|\?)/);
+  if (vimeoMatch && vimeoMatch[3]) {
+    const vimeoId = vimeoMatch[3];
+    return {
+      embedUrl: `https://player.vimeo.com/video/${vimeoId}?autoplay=1`,
+      thumbnailUrl: `https://vumbnail.com/${vimeoId}.jpg`,
+    };
+  }
+
+  return {
+    embedUrl: url,
+    thumbnailUrl: '',
+  };
+};
 
 export default function GalleryAdminPage() {
   const [items, setItems] = useState<GalleryItem[]>([]);
@@ -15,13 +52,9 @@ export default function GalleryAdminPage() {
   const [category, setCategory] = useState<'media' | 'design' | 'web'>('media');
   const [mediaType, setMediaType] = useState<'image' | 'video'>('image');
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [customCoverFile, setCustomCoverFile] = useState<File | null>(null);
   const [videoUrlInput, setVideoUrlInput] = useState('');
   const [uploading, setUploading] = useState(false);
-
-  const extractDriveId = (url: string) => {
-    const match = url.match(/\/d\/([a-zA-Z0-9_-]+)/);
-    return match ? match[1] : null;
-  };
 
   useEffect(() => {
     const unsubscribe = subscribeToGalleryItems((data) => {
@@ -34,6 +67,12 @@ export default function GalleryAdminPage() {
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       setSelectedFile(e.target.files[0]);
+    }
+  };
+
+  const handleCustomCoverSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      setCustomCoverFile(e.target.files[0]);
     }
   };
 
@@ -91,7 +130,7 @@ export default function GalleryAdminPage() {
     }
 
     if (mediaType === 'video' && !videoUrlInput) {
-      toast.error('Please provide a Google Drive link.');
+      toast.error('Please provide a video link.');
       return;
     }
 
@@ -108,11 +147,15 @@ export default function GalleryAdminPage() {
       if (mediaType === 'image') {
         dataToSave.imageUrl = await compressImage(selectedFile!);
       } else {
-        const fileId = extractDriveId(videoUrlInput);
-        if (!fileId) {
-          throw new Error("Invalid Google Drive link format. Ensure it contains '/d/FILE_ID'.");
+        const parsed = parseVideoUrl(videoUrlInput.trim());
+        dataToSave.videoUrl = parsed.embedUrl;
+
+        // If custom cover uploaded, use it. Otherwise, save auto thumbnail
+        if (customCoverFile) {
+          dataToSave.imageUrl = await compressImage(customCoverFile);
+        } else if (parsed.thumbnailUrl) {
+          dataToSave.imageUrl = parsed.thumbnailUrl;
         }
-        dataToSave.videoUrl = `https://drive.google.com/file/d/${fileId}/preview`;
       }
 
       await saveGalleryItem(dataToSave);
@@ -123,6 +166,7 @@ export default function GalleryAdminPage() {
       setCategory('media');
       setMediaType('image');
       setSelectedFile(null);
+      setCustomCoverFile(null);
       setVideoUrlInput('');
       setShowForm(false);
     } catch (error: any) {
@@ -157,14 +201,14 @@ export default function GalleryAdminPage() {
       <div className="flex justify-between items-center">
         <div>
           <h2 className="text-2xl font-bold font-display text-slate-900">Gallery Management</h2>
-          <p className="text-slate-500 text-sm mt-1">Upload and manage images displayed on the public gallery.</p>
+          <p className="text-slate-500 text-sm mt-1">Upload and manage media displayed on the public gallery.</p>
         </div>
         <button
           onClick={() => setShowForm(!showForm)}
           className="flex items-center gap-2 bg-brand-orange text-white px-4 py-2 rounded-lg font-semibold hover:bg-brand-orange-dark transition-colors"
         >
           {showForm ? <X size={20} /> : <Plus size={20} />}
-          {showForm ? 'Cancel' : 'Add Image'}
+          {showForm ? 'Cancel' : 'Add Item'}
         </button>
       </div>
 
@@ -200,7 +244,7 @@ export default function GalleryAdminPage() {
                   required
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
-                  placeholder="e.g., Student Logo Design"
+                  placeholder="e.g., TechinEjigbo in motion"
                   className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-brand-orange focus:border-brand-orange outline-none"
                 />
               </div>
@@ -235,16 +279,30 @@ export default function GalleryAdminPage() {
                 </div>
               </div>
             ) : (
-              <div>
-                <label className="block text-sm font-semibold text-slate-700 mb-1">Google Drive Link</label>
-                <input
-                  type="url"
-                  value={videoUrlInput}
-                  onChange={(e) => setVideoUrlInput(e.target.value)}
-                  placeholder="https://drive.google.com/file/d/..."
-                  className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-brand-orange focus:border-brand-orange outline-none"
-                />
-                <p className="text-xs text-slate-500 mt-2">Make sure the Google Drive file access is set to "Anyone with the link".</p>
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-semibold text-slate-700 mb-1">Video Link</label>
+                  <input
+                    type="url"
+                    required
+                    value={videoUrlInput}
+                    onChange={(e) => setVideoUrlInput(e.target.value)}
+                    placeholder="https://drive.google.com/file/d/... or YouTube / Vimeo URL"
+                    className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-brand-orange focus:border-brand-orange outline-none"
+                  />
+                  <p className="text-xs text-slate-500 mt-1">Supports Google Drive ("Anyone with link"), YouTube, and Vimeo links.</p>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-semibold text-slate-700 mb-1">Custom Video Thumbnail (Optional)</label>
+                  <input 
+                    type="file" 
+                    accept="image/*" 
+                    onChange={handleCustomCoverSelect}
+                    className="text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-brand-orange/10 file:text-brand-orange hover:file:bg-brand-orange/20 cursor-pointer"
+                  />
+                  <p className="text-xs text-slate-400 mt-1">If left blank, a high-resolution thumbnail will be extracted automatically from the video link.</p>
+                </div>
               </div>
             )}
 
@@ -263,52 +321,63 @@ export default function GalleryAdminPage() {
       )}
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-        {items.map((item) => (
-          <div key={item.id} className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden group">
-            <div className="h-48 w-full bg-slate-100 relative overflow-hidden">
-              {item.mediaType === 'video' ? (
-                <iframe 
-                  src={item.videoUrl} 
-                  className="w-full h-full border-0 pointer-events-none" 
-                  title={item.title}
-                  allow="autoplay"
-                />
-              ) : (
-                <img src={item.imageUrl} alt={item.title} className="w-full h-full object-cover" />
-              )}
-              <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                <button
-                  onClick={() => handleDelete(item.id!)}
-                  className="bg-red-500 text-white p-2 rounded-full hover:bg-red-600 transform scale-0 group-hover:scale-100 transition-all duration-200 shadow-lg"
-                  title="Delete Item"
-                >
-                  <Trash2 size={20} />
-                </button>
+        {items.map((item) => {
+          const videoThumb = item.mediaType === 'video' ? (item.imageUrl || parseVideoUrl(item.videoUrl || '').thumbnailUrl) : null;
+          
+          return (
+            <div key={item.id} className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden group">
+              <div className="h-48 w-full bg-slate-900 relative overflow-hidden flex items-center justify-center">
+                {item.mediaType === 'video' ? (
+                  <>
+                    {videoThumb ? (
+                      <img src={videoThumb} alt={item.title} className="w-full h-full object-cover opacity-90" />
+                    ) : (
+                      <div className="w-full h-full bg-slate-800 flex items-center justify-center">
+                        <Video size={36} className="text-slate-500" />
+                      </div>
+                    )}
+                    <div className="absolute top-2 right-2 bg-black/70 backdrop-blur-md px-2 py-0.5 rounded-full text-white text-[10px] font-bold flex items-center gap-1 border border-white/10">
+                      <Play size={8} className="fill-white" /> VIDEO
+                    </div>
+                  </>
+                ) : (
+                  <img src={item.imageUrl} alt={item.title} className="w-full h-full object-cover" />
+                )}
+                
+                <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center z-20">
+                  <button
+                    onClick={() => handleDelete(item.id!)}
+                    className="bg-red-500 text-white p-2.5 rounded-full hover:bg-red-600 transform scale-0 group-hover:scale-100 transition-all duration-200 shadow-lg"
+                    title="Delete Item"
+                  >
+                    <Trash2 size={18} />
+                  </button>
+                </div>
+              </div>
+              <div className="p-4">
+                <h4 className="font-bold text-slate-900 truncate">{item.title}</h4>
+                <div className="flex justify-between items-center mt-2">
+                  <span className={`px-2 py-1 text-xs font-semibold rounded-md ${
+                    item.category === 'design' ? 'bg-purple-100 text-purple-700' :
+                    item.category === 'web' ? 'bg-blue-100 text-blue-700' :
+                    'bg-orange-100 text-orange-700'
+                  }`}>
+                    {item.category === 'design' ? 'Graphic Design' : item.category === 'web' ? 'Web Development' : 'General Media'}
+                  </span>
+                  <span className="text-xs text-slate-400">
+                    {new Date(item.createdAt).toLocaleDateString()}
+                  </span>
+                </div>
               </div>
             </div>
-            <div className="p-4">
-              <h4 className="font-bold text-slate-900 truncate">{item.title}</h4>
-              <div className="flex justify-between items-center mt-2">
-                <span className={`px-2 py-1 text-xs font-semibold rounded-md ${
-                  item.category === 'design' ? 'bg-purple-100 text-purple-700' :
-                  item.category === 'web' ? 'bg-blue-100 text-blue-700' :
-                  'bg-orange-100 text-orange-700'
-                }`}>
-                  {item.category === 'design' ? 'Graphic Design' : item.category === 'web' ? 'Web Development' : 'General Media'}
-                </span>
-                <span className="text-xs text-slate-400">
-                  {new Date(item.createdAt).toLocaleDateString()}
-                </span>
-              </div>
-            </div>
-          </div>
-        ))}
+          );
+        })}
 
         {items.length === 0 && !loading && (
           <div className="col-span-full bg-white p-12 text-center rounded-2xl border border-slate-200 border-dashed">
             <ImageIcon className="w-12 h-12 text-slate-300 mx-auto mb-3" />
-            <p className="text-slate-500 font-medium">No images found in the gallery.</p>
-            <p className="text-slate-400 text-sm mt-1">Upload your first image above.</p>
+            <p className="text-slate-500 font-medium">No items found in the gallery.</p>
+            <p className="text-slate-400 text-sm mt-1">Upload your first item above.</p>
           </div>
         )}
       </div>

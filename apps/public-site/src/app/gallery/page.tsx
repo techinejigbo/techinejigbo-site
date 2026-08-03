@@ -12,7 +12,7 @@ export const getVideoMetadata = (url?: string, customImage?: string) => {
   if (driveMatch && driveMatch[1]) {
     const fileId = driveMatch[1];
     return {
-      embedUrl: `https://drive.google.com/file/d/${fileId}/preview`,
+      embedUrl: `https://drive.google.com/file/d/${fileId}/preview?autoplay=1`,
       thumbnailUrl: customImage || `https://drive.google.com/thumbnail?id=${fileId}&sz=w1000`,
     };
   }
@@ -22,7 +22,7 @@ export const getVideoMetadata = (url?: string, customImage?: string) => {
   if (ytMatch && ytMatch[1]) {
     const ytId = ytMatch[1];
     return {
-      embedUrl: `https://www.youtube-nocookie.com/embed/${ytId}?autoplay=1&modestbranding=1&rel=0`,
+      embedUrl: `https://www.youtube-nocookie.com/embed/${ytId}?autoplay=1&playsinline=1&modestbranding=1&rel=0`,
       thumbnailUrl: customImage || `https://img.youtube.com/vi/${ytId}/hqdefault.jpg`,
     };
   }
@@ -32,13 +32,14 @@ export const getVideoMetadata = (url?: string, customImage?: string) => {
   if (vimeoMatch && vimeoMatch[3]) {
     const vimeoId = vimeoMatch[3];
     return {
-      embedUrl: `https://player.vimeo.com/video/${vimeoId}?autoplay=1`,
+      embedUrl: `https://player.vimeo.com/video/${vimeoId}?autoplay=1&playsinline=1`,
       thumbnailUrl: customImage || `https://vumbnail.com/${vimeoId}.jpg`,
     };
   }
 
+  const separator = url.includes('?') ? '&' : '?';
   return {
-    embedUrl: url,
+    embedUrl: `${url}${separator}autoplay=1`,
     thumbnailUrl: customImage || '',
   };
 };

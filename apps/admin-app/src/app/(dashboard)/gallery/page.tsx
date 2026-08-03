@@ -11,7 +11,7 @@ const parseVideoUrl = (url: string) => {
   if (driveMatch && driveMatch[1]) {
     const fileId = driveMatch[1];
     return {
-      embedUrl: `https://drive.google.com/file/d/${fileId}/preview`,
+      embedUrl: `https://drive.google.com/file/d/${fileId}/preview?autoplay=1`,
       thumbnailUrl: `https://drive.google.com/thumbnail?id=${fileId}&sz=w1000`,
     };
   }
@@ -21,7 +21,7 @@ const parseVideoUrl = (url: string) => {
   if (ytMatch && ytMatch[1]) {
     const ytId = ytMatch[1];
     return {
-      embedUrl: `https://www.youtube-nocookie.com/embed/${ytId}?autoplay=1&modestbranding=1&rel=0`,
+      embedUrl: `https://www.youtube-nocookie.com/embed/${ytId}?autoplay=1&playsinline=1&modestbranding=1&rel=0`,
       thumbnailUrl: `https://img.youtube.com/vi/${ytId}/hqdefault.jpg`,
     };
   }
@@ -31,13 +31,14 @@ const parseVideoUrl = (url: string) => {
   if (vimeoMatch && vimeoMatch[3]) {
     const vimeoId = vimeoMatch[3];
     return {
-      embedUrl: `https://player.vimeo.com/video/${vimeoId}?autoplay=1`,
+      embedUrl: `https://player.vimeo.com/video/${vimeoId}?autoplay=1&playsinline=1`,
       thumbnailUrl: `https://vumbnail.com/${vimeoId}.jpg`,
     };
   }
 
+  const separator = url.includes('?') ? '&' : '?';
   return {
-    embedUrl: url,
+    embedUrl: `${url}${separator}autoplay=1`,
     thumbnailUrl: '',
   };
 };

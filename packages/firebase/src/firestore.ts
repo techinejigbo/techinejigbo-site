@@ -82,11 +82,16 @@ export interface TraineeData {
 }
 
 export interface ExamRecord {
+  id?: string;
   traineeId: string;
   examId: string;
   score: number;
   totalQuestions: number;
   completedAt: string;
+  timeSpentSeconds?: number;
+  violationsCount?: number;
+  autoSubmitted?: boolean;
+  reason?: string;
 }
 
 export interface Announcement {
@@ -370,25 +375,40 @@ export const addAdmin = async (uid: string, email: string, addedByUid: string) =
 
 // --- Exam Functions ---
 
-export interface ExamRecord {
-  id?: string;
-  traineeId: string;
-  examId: string; // e.g., 'web-dev-101'
-  score: number;
-  totalQuestions: number;
-  completedAt: string;
-}
-
 export const saveExamScore = async (examData: ExamRecord) => {
   try {
-    // Generate a unique ID if not provided
-    const docId = examData.id || `${examData.traineeId}_${examData.examId}_${Date.now()}`;
+    // Generate a deterministic ID based on trainee and exam course to enforce single submission
+    const docId = examData.id || `${examData.traineeId}_${examData.examId}`;
     const docRef = doc(db, 'exams', docId);
+    
+    // Check if exam already exists to prevent duplicate writes
+    const existing = await getDoc(docRef);
+    if (existing.exists()) {
+      throw new Error("This assessment has already been completed and submitted.");
+    }
+
     await setDoc(docRef, { ...examData, id: docId });
     return { success: true, id: docId };
   } catch (error) {
     console.error("Error saving exam score:", error);
     throw error;
+  }
+};
+
+export const hasStudentCompletedExam = async (traineeId: string, examId: string): Promise<boolean> => {
+  try {
+    const docId = `${traineeId}_${examId}`;
+    const docRef = doc(db, 'exams', docId);
+    const snap = await getDoc(docRef);
+    if (snap.exists()) return true;
+    
+    // Fallback: check query in case legacy records were saved with timestamp docId
+    const q = query(collection(db, 'exams'), where('traineeId', '==', traineeId), where('examId', '==', examId));
+    const querySnap = await getDocs(q);
+    return !querySnap.empty;
+  } catch (error) {
+    console.error("Error checking completed exam status:", error);
+    return false;
   }
 };
 

@@ -32,8 +32,10 @@ service cloud.firestore {
     match /exams/{examId} {
       // Trainees can read their own exams and create new ones. Admins can read all.
       allow read: if (request.auth != null && resource.data.traineeId == request.auth.uid) || isAdmin();
-      // Only allow creation if the traineeId matches the logged in user
-      allow create: if request.auth != null && request.resource.data.traineeId == request.auth.uid;
+      // Only allow creation if the traineeId matches the logged in user AND this exam document does not already exist
+      allow create: if request.auth != null 
+                    && request.resource.data.traineeId == request.auth.uid
+                    && !exists(/databases/$(database)/documents/exams/$(examId));
       allow update, delete: if isAdmin();
     }
 

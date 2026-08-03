@@ -2,11 +2,19 @@
 
 import React, { useEffect, useState } from 'react';
 import { useStudent } from '../../../components/StudentProvider';
-import { getGlobalSettings, subscribeToGlobalSettings, saveExamScore, subscribeToExams, getQuestions, ExamRecord, QuestionData } from '@techinejigbo/firebase/src/firestore';
-import ExamInterface from '../../../components/ExamInterface';
+import { 
+  getGlobalSettings, 
+  subscribeToGlobalSettings, 
+  saveExamScore, 
+  subscribeToExams, 
+  getQuestions, 
+  ExamRecord, 
+  QuestionData 
+} from '@techinejigbo/firebase/src/firestore';
+import ExamInterface, { ExamMetaAudit } from '../../../components/ExamInterface';
 import ResultView from '../../../components/ResultView';
 import { StudentInfo } from '../../../types';
-import { PenTool, Lock, AlertCircle, Clock } from 'lucide-react';
+import { PenTool, Lock, AlertCircle, Clock, CheckCircle2, ShieldAlert, Award, FileText } from 'lucide-react';
 
 export default function ExamsPage() {
   const { trainee } = useStudent();
@@ -19,6 +27,7 @@ export default function ExamsPage() {
   const [score, setScore] = useState(0);
   const [examAnswers, setExamAnswers] = useState<Record<string, 'A' | 'B' | 'C' | 'D'>>({});
   const [examElapsedSeconds, setExamElapsedSeconds] = useState(0);
+  const [examAudit, setExamAudit] = useState<ExamMetaAudit | undefined>(undefined);
   const [examQuestions, setExamQuestions] = useState<QuestionData[]>([]);
   const [pastExams, setPastExams] = useState<ExamRecord[]>([]);
 
@@ -63,6 +72,12 @@ export default function ExamsPage() {
   const rawCourse = trainee ? (trainee.course || trainee.program || 'web-development') : 'web-development';
   const normalizedCourse = rawCourse.toLowerCase().replace(/\s+/g, '-');
 
+  // Check if student has already completed an exam for this program
+  const completedExamRecord = pastExams.find(
+    (e) => e.examId === normalizedCourse || e.examId === rawCourse
+  );
+  const hasAlreadyCompleted = Boolean(completedExamRecord);
+
   const studentInfo: StudentInfo | null = trainee ? {
     uid: trainee.uid,
     fullName: `${trainee.firstName} ${trainee.lastName}`,
@@ -73,14 +88,23 @@ export default function ExamsPage() {
   } : null;
 
   const handleStartExam = () => {
+    if (hasAlreadyCompleted) {
+      alert("You have already completed and submitted your examination for this course. Retakes are not permitted.");
+      return;
+    }
     setIsExamStarted(true);
   };
 
-  const handleExamSubmit = async (submittedAnswers: Record<string, 'A' | 'B' | 'C' | 'D'>, finalSeconds: number) => {
+  const handleExamSubmit = async (
+    submittedAnswers: Record<string, 'A' | 'B' | 'C' | 'D'>, 
+    finalSeconds: number,
+    audit?: ExamMetaAudit
+  ) => {
     setIsExamStarted(false);
     setIsExamCompleted(true);
     setExamAnswers(submittedAnswers);
     setExamElapsedSeconds(finalSeconds);
+    setExamAudit(audit);
 
     if (trainee && studentInfo) {
       const questions = await getQuestions(studentInfo.course);
@@ -103,7 +127,11 @@ export default function ExamsPage() {
           examId: studentInfo.course,
           score: percentage,
           totalQuestions: questions.length,
-          completedAt: new Date().toISOString()
+          completedAt: new Date().toISOString(),
+          timeSpentSeconds: finalSeconds,
+          violationsCount: audit?.violationsCount || 0,
+          autoSubmitted: audit?.autoSubmitted || false,
+          reason: audit?.reason || "Normal Submission"
         });
 
         if (percentage >= 70) {
@@ -133,13 +161,18 @@ export default function ExamsPage() {
   };
 
   if (loading) {
-    return <div className="text-slate-400">Loading assessment portal...</div>;
+    return (
+      <div className="flex items-center justify-center py-20">
+        <div className="animate-spin w-8 h-8 border-4 border-brand-orange border-t-transparent rounded-full mr-3" />
+        <span className="text-slate-500 font-mono text-sm uppercase">Loading assessment portal...</span>
+      </div>
+    );
   }
 
-  // If exam is actively running, override the page layout to show only the exam interface
+  // If exam is actively running, override the page layout to show only the full secure exam interface
   if (isExamStarted && studentInfo) {
     return (
-      <div className="fixed inset-0 z-50 bg-slate-50 overflow-y-auto">
+      <div className="fixed inset-0 z-50 bg-slate-900 overflow-y-auto">
         <ExamInterface 
           student={studentInfo} 
           onExit={() => setIsExamStarted(false)} 
@@ -149,16 +182,16 @@ export default function ExamsPage() {
     );
   }
 
-  // If exam was just completed
+  // If exam was just completed in this session
   if (isExamCompleted && studentInfo) {
     return (
-      <div className="max-w-3xl mx-auto mt-10">
+      <div className="w-full">
         <ResultView 
           student={studentInfo} 
           questions={examQuestions}
           answers={examAnswers}
           elapsedSeconds={examElapsedSeconds}
-          onRetake={() => setIsExamCompleted(false)} 
+          audit={examAudit}
           onExit={() => setIsExamCompleted(false)}
         />
       </div>
@@ -172,33 +205,113 @@ export default function ExamsPage() {
       <section>
         <h2 className="text-2xl font-display font-bold text-slate-900 mb-6 flex items-center gap-2">
           <PenTool size={24} className="text-brand-orange" />
-          Active Assessment
+          Official Assessment Portal
         </h2>
 
-        {isExamOpen ? (
-          <div className="bg-white border-2 border-brand-orange/30 p-8 rounded-xl shadow-sm text-center">
-            <div className="w-16 h-16 bg-brand-orange-light/20 text-brand-orange rounded-full flex items-center justify-center mx-auto mb-4">
+        {/* State 1: Already Completed & Submitted */}
+        {hasAlreadyCompleted && completedExamRecord ? (
+          <div className="bg-white border-2 border-emerald-500/30 p-8 rounded-2xl shadow-sm text-center relative overflow-hidden">
+            <div className="absolute top-0 right-0 bg-emerald-500 text-white font-mono text-[10px] font-bold uppercase tracking-widest px-4 py-1 rounded-bl-xl flex items-center gap-1">
+              <Lock size={12} />
+              Attempt Recorded (1/1)
+            </div>
+
+            <div className="w-16 h-16 bg-emerald-50 text-emerald-600 rounded-full flex items-center justify-center mx-auto mb-4 border border-emerald-200">
+              <CheckCircle2 size={34} />
+            </div>
+
+            <h3 className="text-xl font-display font-bold text-slate-900 mb-2">
+              Assessment Completed & Locked
+            </h3>
+            
+            <p className="text-slate-600 text-sm mb-6 max-w-lg mx-auto leading-relaxed">
+              You have successfully completed and submitted your certification examination for <strong className="text-slate-900 capitalize">{normalizedCourse.replace('-', ' ')}</strong>. In accordance with examination regulations, assessments are strictly one-time and cannot be re-taken.
+            </p>
+
+            {/* Score pill & details */}
+            <div className="inline-flex flex-wrap items-center justify-center gap-4 bg-slate-50 border border-slate-200 p-4 rounded-xl text-xs font-mono mb-6">
+              <div>
+                <span className="text-slate-400 uppercase text-[10px] block font-bold">Your Score</span>
+                <span className={`text-base font-black ${completedExamRecord.score >= 70 ? 'text-emerald-600' : 'text-rose-600'}`}>
+                  {completedExamRecord.score}% ({completedExamRecord.score >= 70 ? 'Passed' : 'Completed'})
+                </span>
+              </div>
+              <div className="h-8 w-px bg-slate-200 hidden sm:block" />
+              <div>
+                <span className="text-slate-400 uppercase text-[10px] block font-bold">Submission Date</span>
+                <span className="text-slate-800 font-bold">
+                  {new Date(completedExamRecord.completedAt).toLocaleDateString(undefined, { 
+                    year: 'numeric', 
+                    month: 'short', 
+                    day: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                  })}
+                </span>
+              </div>
+              <div className="h-8 w-px bg-slate-200 hidden sm:block" />
+              <div>
+                <span className="text-slate-400 uppercase text-[10px] block font-bold">Certificate Status</span>
+                <span className={`font-bold ${completedExamRecord.score >= 70 ? 'text-emerald-600' : 'text-slate-500'}`}>
+                  {completedExamRecord.score >= 70 ? 'Verified / Pending Admin' : 'Not Eligible (<70%)'}
+                </span>
+              </div>
+            </div>
+
+            <div className="flex justify-center">
+              <span className="text-xs font-mono text-slate-400 flex items-center gap-1.5">
+                <Lock size={12} className="text-brand-orange" />
+                Exam portal access is now permanently locked for this enrolled program.
+              </span>
+            </div>
+          </div>
+        ) : isExamOpen ? (
+          /* State 2: Exam Open & Not Yet Attempted */
+          <div className="bg-white border-2 border-brand-orange/30 p-8 rounded-2xl shadow-sm text-center relative overflow-hidden">
+            <div className="w-16 h-16 bg-brand-orange/10 text-brand-orange rounded-2xl flex items-center justify-center mx-auto mb-4">
               <PenTool size={32} />
             </div>
-            <h3 className="text-xl font-bold text-slate-900 mb-2">Final Certification Exam</h3>
-            <p className="text-slate-600 mb-6 max-w-md mx-auto">
-              The exam portal is currently open! You have 50 questions to answer. Please ensure you have a stable internet connection before starting.
+
+            <span className="text-xs font-mono font-bold uppercase tracking-widest text-brand-orange">
+              Live Assessment Window
+            </span>
+            <h3 className="text-2xl font-display font-bold text-slate-900 mt-1 mb-2">
+              Final Certification Examination
+            </h3>
+            
+            <p className="text-slate-600 text-sm mb-6 max-w-lg mx-auto leading-relaxed">
+              The assessment portal is currently open for your program (<strong className="text-slate-900 capitalize">{normalizedCourse.replace('-', ' ')}</strong>). 
+              You will be presented with 50 questions with a 60-minute (1 hour) strict countdown timer and live malpractice detection.
             </p>
+
+            <div className="bg-amber-50/80 border border-amber-200 text-amber-800 rounded-xl p-4 max-w-md mx-auto mb-6 text-xs text-left font-mono space-y-1.5">
+              <div className="flex items-center gap-1.5 font-bold text-amber-900">
+                <ShieldAlert size={14} className="text-amber-600" /> Important Examination Notice:
+              </div>
+              <p className="leading-relaxed">
+                • You have exactly <strong>1 attempt</strong>.<br />
+                • Tab switching or leaving the screen triggers violation strikes.<br />
+                • The exam auto-submits when the timer reaches 00:00.
+              </p>
+            </div>
+
             <button 
               onClick={handleStartExam}
-              className="bg-brand-orange hover:bg-brand-orange-dark text-white font-mono font-bold uppercase tracking-wider py-4 px-8 rounded-lg transition-colors shadow-sm"
+              className="bg-brand-orange hover:bg-brand-orange-dark text-white font-mono font-bold uppercase tracking-wider py-4 px-10 rounded-xl transition-all duration-200 shadow-lg shadow-brand-orange/20 cursor-pointer text-sm flex items-center justify-center gap-2 mx-auto"
             >
-              Start Assessment Now
+              <PenTool size={18} />
+              Start Assessment Now (1 Attempt Only)
             </button>
           </div>
         ) : (
-          <div className="bg-slate-50 border border-slate-200 border-dashed p-8 rounded-xl text-center">
-            <div className="w-16 h-16 bg-slate-200 text-slate-500 rounded-full flex items-center justify-center mx-auto mb-4">
+          /* State 3: Portal Closed */
+          <div className="bg-slate-50 border border-slate-200 border-dashed p-8 rounded-2xl text-center">
+            <div className="w-16 h-16 bg-slate-200 text-slate-500 rounded-2xl flex items-center justify-center mx-auto mb-4">
               <Lock size={32} />
             </div>
             <h3 className="text-lg font-bold text-slate-900 mb-2">Portal Closed</h3>
-            <p className="text-slate-500 max-w-md mx-auto">
-              There are no active assessments at this time. The portal will be opened by your instructor when it is time for your exam.
+            <p className="text-slate-500 text-sm max-w-md mx-auto leading-relaxed">
+              There are no active assessments at this time. The portal will be scheduled and opened by your instructor when your cohort is eligible for evaluation.
             </p>
           </div>
         )}
@@ -208,26 +321,51 @@ export default function ExamsPage() {
       <section>
         <h2 className="text-xl font-display font-bold text-slate-900 mb-6 flex items-center gap-2">
           <Clock size={20} className="text-slate-400" />
-          Past Exam History
+          Candidate History & Records
         </h2>
 
         {pastExams.length === 0 ? (
-          <div className="bg-white border border-slate-200 p-6 rounded-xl shadow-sm text-center text-slate-500">
-            You have not taken any exams yet.
+          <div className="bg-white border border-slate-200 p-8 rounded-2xl shadow-sm text-center text-slate-500 text-sm">
+            <FileText size={32} className="mx-auto text-slate-300 mb-2" />
+            No previous examination records found for this account.
           </div>
         ) : (
           <div className="space-y-4">
             {pastExams.map((exam, idx) => (
-              <div key={idx} className="bg-white border border-slate-200 p-6 rounded-xl shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div 
+                key={idx} 
+                className="bg-white border border-slate-200 p-6 rounded-xl shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4"
+              >
                 <div>
-                  <h3 className="font-bold text-slate-900 capitalize">{exam.examId.replace('-', ' ')} Certification</h3>
-                  <p className="text-xs text-slate-400 font-mono mt-1">Completed: {new Date(exam.completedAt).toLocaleString()}</p>
-                </div>
-                <div className="text-right">
-                  <div className={`inline-flex px-3 py-1 rounded-full text-sm font-bold ${exam.score >= 70 ? 'bg-emerald-50 text-emerald-700' : 'bg-rose-50 text-rose-700'}`}>
-                    Score: {exam.score}%
+                  <div className="flex items-center gap-2">
+                    <h3 className="font-bold text-slate-900 capitalize text-base">
+                      {exam.examId.replace('-', ' ')} Certification
+                    </h3>
+                    <span className="text-[10px] font-mono uppercase bg-slate-100 text-slate-600 px-2 py-0.5 rounded font-bold">
+                      Locked
+                    </span>
                   </div>
-                  <p className="text-xs text-slate-500 mt-1">{exam.score >= 70 ? 'Passed' : 'Failed'}</p>
+                  <p className="text-xs text-slate-400 font-mono mt-1">
+                    Submitted: {new Date(exam.completedAt).toLocaleString()}
+                  </p>
+                </div>
+                
+                <div className="flex items-center gap-4 text-right">
+                  {exam.violationsCount !== undefined && exam.violationsCount > 0 && (
+                    <span className="text-[10px] font-mono text-amber-700 bg-amber-50 border border-amber-200 px-2 py-1 rounded">
+                      {exam.violationsCount} Proctoring Warning(s)
+                    </span>
+                  )}
+                  <div>
+                    <div className={`inline-flex px-3 py-1 rounded-full text-xs font-mono font-bold ${
+                      exam.score >= 70 ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-rose-50 text-rose-700 border border-rose-200'
+                    }`}>
+                      Score: {exam.score}%
+                    </div>
+                    <p className="text-[11px] font-mono font-bold text-slate-500 mt-1">
+                      {exam.score >= 70 ? 'Passed (≥70%)' : 'Below Pass Mark'}
+                    </p>
+                  </div>
                 </div>
               </div>
             ))}

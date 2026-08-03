@@ -10,13 +10,14 @@ import {
   Heart, Mail, Phone, Clock, CheckCircle2, 
   XCircle, AlertCircle, Search, Download, 
   Copy, Check, TrendingUp, Users, DollarSign,
-  MessageSquare, Filter
+  MessageSquare, Filter, RefreshCw
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 export default function AdminDonationsPage() {
   const [donations, setDonations] = useState<DonationRecord[]>([]);
   const [loading, setLoading] = useState(true);
+  const [isSyncing, setIsSyncing] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<'all' | 'success' | 'pending' | 'failed'>('all');
   const [copiedRef, setCopiedRef] = useState<string | null>(null);
@@ -29,6 +30,24 @@ export default function AdminDonationsPage() {
     });
     return () => unsubscribe();
   }, []);
+
+  const handleSyncPaystack = async () => {
+    setIsSyncing(true);
+    try {
+      const res = await fetch('/api/donations/sync', { method: 'POST' });
+      const data = await res.json();
+      if (data.success) {
+        toast.success(data.message || `Successfully synced ${data.syncedCount || 0} donations from Paystack!`);
+      } else {
+        toast.error(data.error || 'Failed to sync with Paystack');
+      }
+    } catch (error: any) {
+      console.error('Error syncing with Paystack:', error);
+      toast.error('Network error while connecting to Paystack sync');
+    } finally {
+      setIsSyncing(false);
+    }
+  };
 
   const copyToClipboard = (text: string, id: string) => {
     navigator.clipboard.writeText(text);
@@ -131,14 +150,27 @@ export default function AdminDonationsPage() {
           </p>
         </div>
 
-        <button
-          type="button"
-          onClick={handleExportCSV}
-          className="inline-flex items-center gap-2 bg-slate-900 hover:bg-slate-800 text-white px-4 py-2.5 rounded-xl text-sm font-semibold transition-colors shadow-sm cursor-pointer"
-        >
-          <Download size={16} />
-          Export CSV Report
-        </button>
+        <div className="flex items-center gap-3">
+          <button
+            type="button"
+            onClick={handleSyncPaystack}
+            disabled={isSyncing}
+            className="inline-flex items-center gap-2 bg-brand-orange hover:bg-brand-orange-dark disabled:opacity-70 text-white px-4 py-2.5 rounded-xl text-sm font-semibold transition-all shadow-sm cursor-pointer"
+            title="Import and sync all historical & recent transactions from Paystack"
+          >
+            <RefreshCw size={16} className={isSyncing ? "animate-spin" : ""} />
+            <span>{isSyncing ? 'Syncing...' : 'Sync from Paystack'}</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={handleExportCSV}
+            className="inline-flex items-center gap-2 bg-slate-900 hover:bg-slate-800 text-white px-4 py-2.5 rounded-xl text-sm font-semibold transition-colors shadow-sm cursor-pointer"
+          >
+            <Download size={16} />
+            <span>Export CSV</span>
+          </button>
+        </div>
       </div>
 
       {/* Metrics Grid */}

@@ -17,7 +17,6 @@ import {
   CheckCircle2, 
   ChevronLeft, 
   ChevronRight, 
-  Filter, 
   X, 
   Download, 
   Users, 
@@ -39,12 +38,10 @@ export default function TraineesPage() {
   const [exams, setExams] = useState<ExamRecord[]>([]);
   const [loading, setLoading] = useState(true);
 
-  // Search & Filter state
+  // Search & Filter state (School and Class are searched directly through the search bar)
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState<'all' | 'active' | 'pending' | 'suspended'>('all');
   const [programFilter, setProgramFilter] = useState<string>('all');
-  const [schoolFilter, setSchoolFilter] = useState<string>('all');
-  const [classFilter, setClassFilter] = useState<string>('all');
   const [examFilter, setExamFilter] = useState<'all' | 'completed' | 'not-taken' | 'passed' | 'failed'>('all');
   const [sortBy, setSortBy] = useState<'newest' | 'oldest' | 'name-asc' | 'name-desc' | 'score-high' | 'score-low'>('newest');
 
@@ -79,7 +76,7 @@ export default function TraineesPage() {
     };
   }, []);
 
-  // Compute unique lists for filter dropdowns
+  // Compute unique program list for dropdown
   const availablePrograms = useMemo(() => {
     const set = new Set<string>();
     trainees.forEach(t => {
@@ -87,22 +84,6 @@ export default function TraineesPage() {
       if (prog) set.add(prog);
     });
     return Array.from(set).sort();
-  }, [trainees]);
-
-  const availableSchools = useMemo(() => {
-    const set = new Set<string>();
-    trainees.forEach(t => {
-      if (t.school && t.school.trim()) set.add(t.school.trim());
-    });
-    return Array.from(set).sort((a, b) => a.localeCompare(b));
-  }, [trainees]);
-
-  const availableClasses = useMemo(() => {
-    const set = new Set<string>();
-    trainees.forEach(t => {
-      if (t.traineeClass && t.traineeClass.trim()) set.add(t.traineeClass.trim());
-    });
-    return Array.from(set).sort((a, b) => a.localeCompare(b));
   }, [trainees]);
 
   // Key stats
@@ -121,8 +102,6 @@ export default function TraineesPage() {
     setSearch('');
     setStatusFilter('all');
     setProgramFilter('all');
-    setSchoolFilter('all');
-    setClassFilter('all');
     setExamFilter('all');
     setSortBy('newest');
     setCurrentPage(1);
@@ -133,12 +112,10 @@ export default function TraineesPage() {
     if (search.trim()) count++;
     if (statusFilter !== 'all') count++;
     if (programFilter !== 'all') count++;
-    if (schoolFilter !== 'all') count++;
-    if (classFilter !== 'all') count++;
     if (examFilter !== 'all') count++;
     if (sortBy !== 'newest') count++;
     return count;
-  }, [search, statusFilter, programFilter, schoolFilter, classFilter, examFilter, sortBy]);
+  }, [search, statusFilter, programFilter, examFilter, sortBy]);
 
   // Actions
   const handleApproveAccount = async (trainee: TraineeData) => {
@@ -224,17 +201,7 @@ export default function TraineesPage() {
         if (prog !== programFilter) return false;
       }
 
-      // 4. School Filter
-      if (schoolFilter !== 'all') {
-        if ((t.school || '').trim().toLowerCase() !== schoolFilter.toLowerCase()) return false;
-      }
-
-      // 5. Class Filter
-      if (classFilter !== 'all') {
-        if ((t.traineeClass || '').trim().toLowerCase() !== classFilter.toLowerCase()) return false;
-      }
-
-      // 6. Exam Performance Filter
+      // 4. Exam Performance Filter
       if (examFilter !== 'all') {
         const traineeExams = exams.filter(e => e.traineeId === t.uid);
         const bestExam = traineeExams.length > 0 ? traineeExams.sort((a, b) => b.score - a.score)[0] : null;
@@ -270,7 +237,7 @@ export default function TraineesPage() {
       }
       return 0;
     });
-  }, [trainees, exams, search, statusFilter, programFilter, schoolFilter, classFilter, examFilter, sortBy]);
+  }, [trainees, exams, search, statusFilter, programFilter, examFilter, sortBy]);
 
   // Export filtered trainees to CSV
   const handleExportCSV = () => {
@@ -338,7 +305,7 @@ export default function TraineesPage() {
         <div>
           <h1 className="font-display font-bold text-2xl text-slate-900 tracking-tight">Trainee Directory</h1>
           <p className="text-slate-500 text-sm mt-0.5">
-            Manage registrations, track exam scores, and filter by school, class, program, or status.
+            Manage registrations, track exam scores, and filter by status, program, or search by school & class.
           </p>
         </div>
         <div className="flex items-center gap-2.5">
@@ -359,7 +326,7 @@ export default function TraineesPage() {
         <button
           onClick={() => { resetFilters(); }}
           className={`p-4 rounded-xl border text-left transition-all ${
-            statusFilter === 'all' && !search && programFilter === 'all' && schoolFilter === 'all' && classFilter === 'all' && examFilter === 'all'
+            statusFilter === 'all' && !search && programFilter === 'all' && examFilter === 'all'
               ? 'bg-slate-900 text-white border-slate-900 shadow-md'
               : 'bg-white text-slate-800 border-slate-200 hover:border-slate-300 hover:bg-slate-50/70'
           }`}
@@ -447,7 +414,7 @@ export default function TraineesPage() {
         <div className="p-4 sm:p-6 border-b border-slate-200 space-y-4">
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
             
-            {/* Expanded Search Input */}
+            {/* Expanded Search Input (matches Name, Email, Phone, School, Class, Program) */}
             <div className="relative flex-1 max-w-lg">
               <span className="absolute inset-y-0 left-0 pl-3.5 flex items-center text-slate-400 pointer-events-none">
                 <Search size={17} />
@@ -519,8 +486,8 @@ export default function TraineesPage() {
             </div>
           </div>
 
-          {/* Filter Dropdown Bar (Always visible or toggleable on smaller screens) */}
-          <div className={`grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-3 pt-3 border-t border-slate-100 ${showFiltersPanel ? 'block' : 'hidden md:grid'}`}>
+          {/* Filter Dropdown Bar */}
+          <div className={`grid grid-cols-1 sm:grid-cols-3 gap-3 pt-3 border-t border-slate-100 ${showFiltersPanel ? 'block' : 'hidden md:grid'}`}>
             
             {/* Status Filter */}
             <div>
@@ -530,7 +497,7 @@ export default function TraineesPage() {
               <select
                 value={statusFilter}
                 onChange={(e) => { setStatusFilter(e.target.value as any); setCurrentPage(1); }}
-                className="w-full py-1.5 px-2.5 bg-slate-50 border border-slate-200 rounded-lg text-xs font-medium text-slate-800 focus:outline-none focus:border-brand-orange focus:ring-1 focus:ring-brand-orange"
+                className="w-full py-2 px-2.5 bg-slate-50 border border-slate-200 rounded-lg text-xs font-medium text-slate-800 focus:outline-none focus:border-brand-orange focus:ring-1 focus:ring-brand-orange"
               >
                 <option value="all">All Statuses ({trainees.length})</option>
                 <option value="active">Active ({stats.active})</option>
@@ -547,50 +514,12 @@ export default function TraineesPage() {
               <select
                 value={programFilter}
                 onChange={(e) => { setProgramFilter(e.target.value); setCurrentPage(1); }}
-                className="w-full py-1.5 px-2.5 bg-slate-50 border border-slate-200 rounded-lg text-xs font-medium text-slate-800 focus:outline-none focus:border-brand-orange focus:ring-1 focus:ring-brand-orange capitalize"
+                className="w-full py-2 px-2.5 bg-slate-50 border border-slate-200 rounded-lg text-xs font-medium text-slate-800 focus:outline-none focus:border-brand-orange focus:ring-1 focus:ring-brand-orange capitalize"
               >
                 <option value="all">All Programs</option>
                 {availablePrograms.map(prog => (
                   <option key={prog} value={prog}>
                     {formatProgramName(prog)}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            {/* School Filter */}
-            <div>
-              <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1">
-                School
-              </label>
-              <select
-                value={schoolFilter}
-                onChange={(e) => { setSchoolFilter(e.target.value); setCurrentPage(1); }}
-                className="w-full py-1.5 px-2.5 bg-slate-50 border border-slate-200 rounded-lg text-xs font-medium text-slate-800 focus:outline-none focus:border-brand-orange focus:ring-1 focus:ring-brand-orange truncate"
-              >
-                <option value="all">All Schools ({availableSchools.length})</option>
-                {availableSchools.map(school => (
-                  <option key={school} value={school}>
-                    {school}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            {/* Class Filter */}
-            <div>
-              <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1">
-                Class / Level
-              </label>
-              <select
-                value={classFilter}
-                onChange={(e) => { setClassFilter(e.target.value); setCurrentPage(1); }}
-                className="w-full py-1.5 px-2.5 bg-slate-50 border border-slate-200 rounded-lg text-xs font-medium text-slate-800 focus:outline-none focus:border-brand-orange focus:ring-1 focus:ring-brand-orange"
-              >
-                <option value="all">All Classes ({availableClasses.length})</option>
-                {availableClasses.map(cls => (
-                  <option key={cls} value={cls}>
-                    {cls}
                   </option>
                 ))}
               </select>
@@ -604,7 +533,7 @@ export default function TraineesPage() {
               <select
                 value={examFilter}
                 onChange={(e) => { setExamFilter(e.target.value as any); setCurrentPage(1); }}
-                className="w-full py-1.5 px-2.5 bg-slate-50 border border-slate-200 rounded-lg text-xs font-medium text-slate-800 focus:outline-none focus:border-brand-orange focus:ring-1 focus:ring-brand-orange"
+                className="w-full py-2 px-2.5 bg-slate-50 border border-slate-200 rounded-lg text-xs font-medium text-slate-800 focus:outline-none focus:border-brand-orange focus:ring-1 focus:ring-brand-orange"
               >
                 <option value="all">All Exam Records</option>
                 <option value="completed">Exam Completed</option>
@@ -639,20 +568,6 @@ export default function TraineesPage() {
                 <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-brand-orange/10 text-brand-orange-dark text-xs rounded-full border border-brand-orange/20">
                   Program: <strong className="font-medium capitalize">{formatProgramName(programFilter)}</strong>
                   <button onClick={() => setProgramFilter('all')} className="hover:text-rose-600"><X size={13} /></button>
-                </span>
-              )}
-
-              {schoolFilter !== 'all' && (
-                <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-indigo-50 text-indigo-800 text-xs rounded-full border border-indigo-200">
-                  School: <strong className="font-medium">{schoolFilter}</strong>
-                  <button onClick={() => setSchoolFilter('all')} className="hover:text-rose-600"><X size={13} /></button>
-                </span>
-              )}
-
-              {classFilter !== 'all' && (
-                <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-purple-50 text-purple-800 text-xs rounded-full border border-purple-200">
-                  Class: <strong className="font-medium">{classFilter}</strong>
-                  <button onClick={() => setClassFilter('all')} className="hover:text-rose-600"><X size={13} /></button>
                 </span>
               )}
 

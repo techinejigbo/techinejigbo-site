@@ -70,6 +70,7 @@ export async function POST(req: NextRequest) {
 
     if (paymentVerified) {
       const donationData: Partial<DonationRecord> = {
+        id: reference,
         reference,
         amount: verifiedAmount,
         currency: verifiedCurrency,

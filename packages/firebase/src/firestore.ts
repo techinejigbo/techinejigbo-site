@@ -773,7 +773,8 @@ export interface DonationRecord {
 
 export const saveDonation = async (donation: Partial<DonationRecord>) => {
   try {
-    const docRef = donation.id ? doc(db, 'donations', donation.id) : doc(collection(db, 'donations'));
+    const docId = donation.id || donation.reference;
+    const docRef = docId ? doc(db, 'donations', docId) : doc(collection(db, 'donations'));
     const dataToSave = {
       ...donation,
       id: docRef.id,

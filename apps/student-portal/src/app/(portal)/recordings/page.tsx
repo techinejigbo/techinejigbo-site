@@ -127,29 +127,25 @@ export default function ClassRecordingsPage() {
     <div className="space-y-8 max-w-7xl mx-auto">
       
       {/* Header Banner */}
-      <div className="relative overflow-hidden bg-gradient-to-r from-slate-900 via-slate-800 to-brand-dark rounded-2xl p-6 sm:p-8 text-white shadow-md">
-        <div className="absolute right-0 top-0 bottom-0 w-1/3 bg-brand-orange/10 rounded-full blur-3xl pointer-events-none" />
+      <div className="bg-brand-orange text-white p-6 sm:p-8 rounded-2xl relative overflow-hidden shadow-sm">
+        <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full blur-3xl -mr-20 -mt-20 pointer-events-none" />
         
         <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div className="space-y-2 max-w-2xl">
-            <div className="inline-flex items-center gap-2 px-3 py-1 bg-brand-orange/20 border border-brand-orange/30 rounded-full text-brand-orange-light text-xs font-semibold tracking-wide uppercase">
-              <Sparkles size={13} />
-              {courseName} Archive
-            </div>
             <h1 className="text-2xl sm:text-3xl font-display font-bold text-white tracking-tight">
               Class Recordings & Lecture Replays
             </h1>
-            <p className="text-slate-300 text-sm leading-relaxed">
+            <p className="text-orange-50 text-sm leading-relaxed">
               Review live lectures, recap coding sessions, and catch up on any missed classes at your own pace.
             </p>
           </div>
 
           <div className="flex items-center gap-3 self-start md:self-center">
-            <div className="bg-white/10 backdrop-blur-md border border-white/10 px-4 py-3 rounded-xl text-center min-w-[110px]">
+            <div className="bg-white/15 backdrop-blur-md border border-white/20 px-4 py-3 rounded-xl text-center min-w-[110px]">
               <span className="block text-2xl font-bold font-display text-white">
                 {recordings.length}
               </span>
-              <span className="text-[11px] text-slate-300 uppercase tracking-wider font-semibold">
+              <span className="text-[11px] text-orange-100 uppercase tracking-wider font-semibold">
                 Sessions
               </span>
             </div>
@@ -185,12 +181,13 @@ export default function ClassRecordingsPage() {
             onClick={() => setSelectedWeek('all')}
             className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition-all ${
               selectedWeek === 'all'
-                ? 'bg-brand-dark text-white shadow-sm'
+                ? 'bg-brand-orange text-white shadow-sm'
                 : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
             }`}
           >
             All Classes ({recordings.length})
           </button>
+
           {availableWeeks.map(week => (
             <button
               key={week}

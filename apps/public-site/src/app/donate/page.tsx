@@ -43,11 +43,6 @@ export default function DonatePage() {
       <section className="bg-brand-dark text-white py-16 md:py-24 relative overflow-hidden">
         <div className="absolute inset-0 opacity-20 bg-[radial-gradient(circle_at_top_right,_var(--tw-gradient-stops))] from-brand-orange via-brand-dark to-brand-dark pointer-events-none"></div>
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center">
-          <div className="inline-flex items-center gap-2 bg-brand-orange/20 border border-brand-orange/40 text-brand-orange-light px-4 py-1.5 rounded-full text-xs md:text-sm font-semibold mb-6">
-            <Heart size={16} className="fill-brand-orange text-brand-orange" />
-            <span>Make a Difference</span>
-          </div>
-
           <h1 className="text-4xl sm:text-6xl font-bold font-display tracking-tight mb-6 leading-tight">
             Support <span className="text-transparent bg-clip-text bg-gradient-to-r from-brand-orange to-brand-orange-light">TechinEjigbo</span>
           </h1>
@@ -193,10 +188,6 @@ export default function DonatePage() {
       {/* Why Your Support Matters */}
       <section className="py-16 md:py-20 bg-white border-t border-slate-200/80">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <div className="inline-flex items-center gap-2 bg-amber-100/70 text-amber-800 px-3.5 py-1 rounded-full text-xs font-semibold mb-4">
-            <Sparkles size={14} className="text-brand-orange" />
-            <span>Community Impact</span>
-          </div>
 
           <h2 className="text-3xl sm:text-4xl font-bold font-display text-slate-900 mb-6">
             Why Your Support Matters

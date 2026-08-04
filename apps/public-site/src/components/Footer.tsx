@@ -53,9 +53,6 @@ export default function Footer() {
               <li>
                 <Link href="/gallery" className="hover:text-brand-orange transition-colors">Gallery</Link>
               </li>
-              <li>
-                <Link href="https://exam.techinejigbo.com" className="hover:text-brand-orange transition-colors">Student Portal</Link>
-              </li>
             </ul>
           </div>
 

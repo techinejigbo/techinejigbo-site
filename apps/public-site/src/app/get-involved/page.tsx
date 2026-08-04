@@ -65,25 +65,21 @@ export default function GetInvolvedPage() {
     {
       icon: <Code2 size={28} className="text-brand-orange" />,
       title: "Web Development Instructors",
-      tags: ["Frontend", "Backend", "Fullstack", "Git"],
       desc: "Guide students through HTML, CSS, JavaScript, React, and project building in hands-on weekend workshops."
     },
     {
       icon: <Palette size={28} className="text-brand-orange" />,
       title: "UI/UX & Design Mentors",
-      tags: ["Figma", "Visual Identity", "Product Design"],
       desc: "Mentor aspiring designers on user research, wireframing, component libraries, and creating stellar portfolio pieces."
     },
     {
       icon: <Briefcase size={28} className="text-brand-orange" />,
       title: "Career & Soft Skills Coaches",
-      tags: ["Resume Reviews", "Mock Interviews", "Workplace Skills"],
       desc: "Equip students with interview confidence, GitHub / LinkedIn branding, communication, and freelance skills."
     },
     {
       icon: <Calendar size={28} className="text-brand-orange" />,
       title: "Operations & Event Coordinators",
-      tags: ["Onboarding", "Logistics", "Demo Days"],
       desc: "Support cohort management, student check-ins, event coordination, and community hackathons."
     }
   ];
@@ -174,23 +170,13 @@ export default function GetInvolvedPage() {
             {volunteerRoles.map((role, idx) => (
               <div 
                 key={idx}
-                className="bg-slate-50 rounded-3xl p-8 border border-slate-200/80 hover:border-brand-orange/40 hover:shadow-lg transition-all flex flex-col justify-between"
+                className="bg-slate-50 rounded-3xl p-8 border border-slate-200/80 hover:border-brand-orange/40 hover:shadow-lg transition-all flex flex-col"
               >
-                <div>
-                  <div className="bg-white p-3.5 rounded-2xl w-fit mb-6 shadow-sm border border-slate-100">
-                    {role.icon}
-                  </div>
-                  <h3 className="text-xl font-bold font-display text-brand-dark mb-3">{role.title}</h3>
-                  <p className="text-slate-600 text-sm leading-relaxed mb-6">{role.desc}</p>
+                <div className="bg-white p-3.5 rounded-2xl w-fit mb-6 shadow-sm border border-slate-100">
+                  {role.icon}
                 </div>
-
-                <div className="flex flex-wrap gap-1.5 pt-4 border-t border-slate-200/60">
-                  {role.tags.map((tag, tIdx) => (
-                    <span key={tIdx} className="bg-white text-slate-700 text-xs px-2.5 py-1 rounded-full border border-slate-200 font-medium">
-                      {tag}
-                    </span>
-                  ))}
-                </div>
+                <h3 className="text-xl font-bold font-display text-brand-dark mb-3">{role.title}</h3>
+                <p className="text-slate-600 text-sm leading-relaxed">{role.desc}</p>
               </div>
             ))}
           </div>

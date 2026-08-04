@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useStudent } from '../../components/StudentProvider';
 import { logoutUser } from '@techinejigbo/firebase/src/auth';
-import { LayoutDashboard, BookOpen, PenTool, User as UserIcon, LogOut, Megaphone, Menu, X } from 'lucide-react';
+import { LayoutDashboard, BookOpen, PenTool, User as UserIcon, LogOut, Megaphone, Menu, X, Video } from 'lucide-react';
 
 export default function PortalLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
@@ -19,10 +19,12 @@ export default function PortalLayout({ children }: { children: React.ReactNode }
   const navLinks = [
     { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
     { name: 'Announcements', href: '/announcements', icon: Megaphone },
+    { name: 'Class Recordings', href: '/recordings', icon: Video },
     { name: 'Materials', href: '/materials', icon: BookOpen },
     { name: 'Assessments', href: '/exams', icon: PenTool },
     { name: 'Profile', href: '/profile', icon: UserIcon },
   ];
+
 
   return (
     <div className="min-h-screen bg-slate-50 flex">

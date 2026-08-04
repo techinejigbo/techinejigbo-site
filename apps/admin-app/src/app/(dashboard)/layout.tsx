@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { LayoutDashboard, Users, BookOpen, Settings, LogOut, HelpCircle, Menu, X, CheckSquare, FileText, Bell, HeartHandshake, MessageSquare, Image, Award, Heart } from 'lucide-react';
+import { LayoutDashboard, Users, BookOpen, Settings, LogOut, HelpCircle, Menu, X, CheckSquare, FileText, Bell, HeartHandshake, MessageSquare, Image, Award, Heart, Video } from 'lucide-react';
 import { logoutUser } from '@techinejigbo/firebase/src/auth';
 import { useAdmin } from '../../components/AdminProvider';
 import { Toaster } from 'react-hot-toast';
@@ -24,6 +24,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     { name: 'Exams', href: '/exams', icon: <BookOpen size={20} /> },
     { name: 'Certificates', href: '/certificates', icon: <Award size={20} /> },
     { name: 'Questions', href: '/questions', icon: <CheckSquare size={20} /> },
+    { name: 'Class Recordings', href: '/recordings', icon: <Video size={20} /> },
     { name: 'Materials', href: '/materials', icon: <FileText size={20} /> },
     { name: 'Announcements', href: '/announcements', icon: <Bell size={20} /> },
     { name: 'Volunteers', href: '/volunteers', icon: <HeartHandshake size={20} /> },
@@ -31,6 +32,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     { name: 'Gallery', href: '/gallery', icon: <Image size={20} /> },
     { name: 'Settings', href: '/settings', icon: <Settings size={20} /> },
   ];
+
 
   return (
     <div className="min-h-screen bg-slate-50 flex">

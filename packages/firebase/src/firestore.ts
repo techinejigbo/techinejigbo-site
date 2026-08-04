@@ -848,3 +848,94 @@ export const updateDonationStatus = async (id: string, status: 'success' | 'pend
   }
 };
 
+// --- Class Recordings ---
+
+export interface ClassRecording {
+  id: string;
+  title: string;
+  course: string;
+  week?: string;
+  lessonNumber?: number;
+  classDate: string;
+  instructor?: string;
+  description?: string;
+  videoUrl: string;
+  thumbnailUrl?: string;
+  attachmentLink?: string;
+  attachmentTitle?: string;
+  duration?: string;
+  createdAt: string;
+}
+
+export const getClassRecordings = async (course?: string): Promise<ClassRecording[]> => {
+  try {
+    const q = course 
+      ? query(collection(db, 'recordings'), where('course', '==', course))
+      : query(collection(db, 'recordings'));
+    const snap = await getDocs(q);
+    const results: ClassRecording[] = [];
+    snap.forEach(docSnap => {
+      results.push({ ...(docSnap.data() as Omit<ClassRecording, 'id'>), id: docSnap.id });
+    });
+    return results.sort((a, b) => {
+      const dateA = new Date(a.classDate || a.createdAt).getTime();
+      const dateB = new Date(b.classDate || b.createdAt).getTime();
+      return dateB - dateA;
+    });
+  } catch (error) {
+    console.error("Error fetching class recordings:", error);
+    return [];
+  }
+};
+
+export const subscribeToClassRecordings = (
+  callback: (recordings: ClassRecording[]) => void,
+  course?: string
+) => {
+  const q = course 
+    ? query(collection(db, 'recordings'), where('course', '==', course))
+    : query(collection(db, 'recordings'));
+    
+  return onSnapshot(q, (snapshot) => {
+    const results: ClassRecording[] = [];
+    snapshot.forEach(docSnap => {
+      results.push({ ...(docSnap.data() as Omit<ClassRecording, 'id'>), id: docSnap.id });
+    });
+    callback(results.sort((a, b) => {
+      const dateA = new Date(a.classDate || a.createdAt).getTime();
+      const dateB = new Date(b.classDate || b.createdAt).getTime();
+      return dateB - dateA;
+    }));
+  }, (error) => {
+    console.error("Error in subscribeToClassRecordings:", error);
+    callback([]);
+  });
+};
+
+export const saveClassRecording = async (rec: Partial<ClassRecording>) => {
+  try {
+    const docRef = rec.id ? doc(db, 'recordings', rec.id) : doc(collection(db, 'recordings'));
+    const dataToSave = {
+      ...rec,
+      id: docRef.id,
+      createdAt: rec.createdAt || new Date().toISOString()
+    };
+    await setDoc(docRef, dataToSave, { merge: true });
+    return { success: true, id: docRef.id };
+  } catch (error) {
+    console.error("Error saving class recording:", error);
+    throw error;
+  }
+};
+
+export const deleteClassRecording = async (id: string) => {
+  try {
+    await deleteDoc(doc(db, 'recordings', id));
+    return { success: true };
+  } catch (error) {
+    console.error("Error deleting class recording:", error);
+    throw error;
+  }
+};
+
+

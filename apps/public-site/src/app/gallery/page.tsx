@@ -4,9 +4,9 @@ import React, { useState, useEffect } from 'react';
 import { Camera, Code, PenTool, LayoutGrid, Loader2, X, Play, Video, ExternalLink } from 'lucide-react';
 import { GalleryItem, subscribeToGalleryItems } from '@techinejigbo/firebase/src/firestore';
 
-export type VideoType = 'gdrive' | 'youtube' | 'vimeo' | 'direct' | 'generic';
+type VideoType = 'gdrive' | 'youtube' | 'vimeo' | 'direct' | 'generic';
 
-export interface VideoMetadata {
+interface VideoMetadata {
   type: VideoType;
   embedUrl: string;
   thumbnailUrl: string;
@@ -14,7 +14,7 @@ export interface VideoMetadata {
   rawUrl: string;
 }
 
-export const getVideoMetadata = (url?: string, customImage?: string): VideoMetadata => {
+const getVideoMetadata = (url?: string, customImage?: string): VideoMetadata => {
   if (!url) {
     return {
       type: 'generic',

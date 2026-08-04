@@ -1,6 +1,16 @@
 import React from 'react';
+import type { Metadata } from 'next';
 import Link from 'next/link';
 import { ArrowRight, Trophy, BookOpen, Clock, Users, Briefcase, CheckCircle2 } from 'lucide-react';
+
+export const metadata: Metadata = {
+  title: 'Our Impact & Student Success Stories',
+  description:
+    'From zero to hero: See how 50+ secondary school students across Ejigbo were transformed into confident designers and developers during Cohort 1.',
+  alternates: {
+    canonical: '/impact',
+  },
+};
 
 export default function ImpactPage() {
   return (

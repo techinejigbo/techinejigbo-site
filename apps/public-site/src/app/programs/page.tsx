@@ -1,6 +1,16 @@
 import React from 'react';
+import type { Metadata } from 'next';
 import Link from 'next/link';
 import { MonitorPlay, PenTool, Layout, BookOpen, Clock, Award, ArrowRight } from 'lucide-react';
+
+export const metadata: Metadata = {
+  title: 'Our Programs & Curriculum',
+  description:
+    'Explore the 5-month intensive curriculum tracks at TechinEjigbo: Web Development (HTML/CSS/JS/React) and Graphic Design (Canva, Branding & UI Principles).',
+  alternates: {
+    canonical: '/programs',
+  },
+};
 
 export default function ProgramsPage() {
   return (

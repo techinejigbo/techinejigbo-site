@@ -1,5 +1,15 @@
 import React from 'react';
+import type { Metadata } from 'next';
 import { Target, Lightbulb, MapPin, Rocket, HelpCircle } from 'lucide-react';
+
+export const metadata: Metadata = {
+  title: 'About Us',
+  description:
+    'Discover why TechinEjigbo was birthed, our mission to empower underprivileged youths in Ejigbo with digital skills, and our roadmap for future cohorts.',
+  alternates: {
+    canonical: '/about',
+  },
+};
 
 export default function AboutPage() {
   return (

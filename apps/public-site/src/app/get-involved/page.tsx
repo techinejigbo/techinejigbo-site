@@ -136,11 +136,6 @@ export default function GetInvolvedPage() {
       <section className="bg-brand-dark text-white py-20 md:py-28 relative overflow-hidden">
         <div className="absolute inset-0 opacity-20 bg-[radial-gradient(circle_at_top_right,_var(--tw-gradient-stops))] from-brand-orange via-brand-dark to-brand-dark"></div>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center">
-          <div className="inline-flex items-center gap-2 bg-brand-orange/20 border border-brand-orange/40 text-brand-orange-light px-4 py-1.5 rounded-full text-xs md:text-sm font-semibold mb-6">
-            <Users size={16} className="text-brand-orange" />
-            <span>Join Our Volunteer Network</span>
-          </div>
-          
           <h1 className="text-4xl sm:text-6xl font-bold font-display tracking-tight mb-6 leading-tight max-w-4xl mx-auto">
             Share Your Knowledge. <br />
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-brand-orange to-brand-orange-light">Shape Future Innovators.</span>

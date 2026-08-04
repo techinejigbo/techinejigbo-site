@@ -8,7 +8,6 @@ export default function ImpactPage() {
       {/* Hero Section */}
       <section className="bg-brand-dark text-white py-20 border-b border-slate-800">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h1 className="text-sm font-semibold tracking-widest text-brand-orange uppercase mb-4">Our Impact</h1>
           <h2 className="text-4xl md:text-6xl font-bold font-display mb-6">From Zero to Hero: Real Stories, Real Results</h2>
           <p className="text-xl text-slate-300 max-w-3xl mx-auto mb-10 leading-relaxed text-balance">
             In just five months, TechinEjigbo took secondary school students with little to no tech exposure and turned them into confident designers and developers. This is more than training: it’s proof that with opportunity, Ejigbo’s youth can compete on any stage.

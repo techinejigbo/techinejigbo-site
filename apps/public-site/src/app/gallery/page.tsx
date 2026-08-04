@@ -129,7 +129,6 @@ export default function GalleryPage() {
       {/* Header */}
       <section className="bg-brand-dark text-white py-20 border-b border-slate-800">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h1 className="text-sm font-semibold tracking-widest text-brand-orange uppercase mb-4">Showcase</h1>
           <h2 className="text-4xl md:text-5xl font-bold font-display mb-6">Our Gallery</h2>
           <p className="text-xl text-slate-300 max-w-2xl mx-auto leading-relaxed">
             A visual showcase of our students' incredible projects, classroom moments, and the vibrant TechinEjigbo community.

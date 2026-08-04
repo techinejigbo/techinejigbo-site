@@ -48,7 +48,10 @@ export default function Footer() {
                 <Link href="/programs" className="hover:text-brand-orange transition-colors">Programs</Link>
               </li>
               <li>
-                <Link href="/impact" className="hover:text-brand-orange transition-colors">Impact & Gallery</Link>
+                <Link href="/impact" className="hover:text-brand-orange transition-colors">Impact</Link>
+              </li>
+              <li>
+                <Link href="/gallery" className="hover:text-brand-orange transition-colors">Gallery</Link>
               </li>
               <li>
                 <Link href="https://exam.techinejigbo.com" className="hover:text-brand-orange transition-colors">Student Portal</Link>
@@ -63,11 +66,11 @@ export default function Footer() {
               <li>
                 <Link href="/donate" className="hover:text-brand-orange transition-colors font-medium text-white flex items-center gap-1.5">
                   <span className="w-1.5 h-1.5 rounded-full bg-brand-orange"></span>
-                  Donate via Paystack
+                  Donate Money
                 </Link>
               </li>
               <li>
-                <Link href="/donate#hardware-donations" className="hover:text-brand-orange transition-colors">
+                <Link href="/donate#donate-hardware" className="hover:text-brand-orange transition-colors">
                   Donate Hardware
                 </Link>
               </li>

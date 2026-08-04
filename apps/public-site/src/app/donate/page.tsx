@@ -131,6 +131,7 @@ export default function DonatePage() {
 
             {/* Card 2: Donate Hardware */}
             <div id="donate-hardware" className="bg-slate-900 text-white rounded-3xl p-8 sm:p-10 border border-slate-800 shadow-md hover:shadow-xl transition-all duration-300 flex flex-col justify-between relative overflow-hidden scroll-mt-24">
+              <span id="hardware-donations" className="absolute -top-24 opacity-0 pointer-events-none" />
               <div className="absolute top-0 right-0 w-32 h-32 bg-brand-orange/15 rounded-full blur-2xl pointer-events-none"></div>
 
               <div>

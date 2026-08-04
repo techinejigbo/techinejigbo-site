@@ -22,7 +22,7 @@ export default function Home() {
             <div className="flex flex-col sm:flex-row gap-4">
               <Link href="/donate" className="inline-flex justify-center items-center gap-2 bg-brand-orange text-white px-8 py-4 rounded-full text-lg font-semibold hover:bg-brand-orange-dark transition-all hover:scale-105 shadow-lg shadow-brand-orange/25">
                 <Heart size={20} className="fill-white" />
-                <span>Donate via Paystack</span>
+                <span>Support us</span>
               </Link>
               <Link href="/impact" className="inline-flex justify-center items-center gap-2 bg-white/10 backdrop-blur-md text-white border border-white/20 px-8 py-4 rounded-full text-lg font-semibold hover:bg-white/20 transition-all">
                 See Our Impact <ArrowRight size={20} />

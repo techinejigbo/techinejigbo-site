@@ -38,7 +38,7 @@ export default function StudentProvider({ children }: { children: React.ReactNod
           // If they are logged in but not a trainee, boot them
           auth.signOut();
         } else {
-          setTrainee(traineeProfile);
+          setTrainee({ ...traineeProfile, uid: currentUser.uid });
           if (pathname === '/login') {
             router.push('/');
           }

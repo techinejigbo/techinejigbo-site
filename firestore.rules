@@ -31,7 +31,7 @@ service cloud.firestore {
     // Exams Collection (Storing completed exam scores)
     match /exams/{examId} {
       // Trainees can read their own exams and create new ones. Admins can read all.
-      allow read: if (request.auth != null && resource.data.traineeId == request.auth.uid) || isAdmin();
+      allow read: if request.auth != null && (resource == null || resource.data.traineeId == request.auth.uid || isAdmin());
       // Only allow creation if the traineeId matches the logged in user AND this exam document does not already exist
       allow create: if request.auth != null 
                     && request.resource.data.traineeId == request.auth.uid
@@ -41,7 +41,7 @@ service cloud.firestore {
 
     // Certificates Collection
     match /certificates/{certificateId} {
-      allow read: if (request.auth != null && resource.data.traineeId == request.auth.uid) || isAdmin();
+      allow read: if request.auth != null && (resource == null || resource.data.traineeId == request.auth.uid || isAdmin());
       allow create: if (request.auth != null && request.resource.data.traineeId == request.auth.uid) || isAdmin();
       allow update, delete: if isAdmin();
     }

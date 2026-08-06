@@ -6,6 +6,7 @@ import {
   getGlobalSettings, 
   subscribeToGlobalSettings, 
   saveExamScore, 
+  saveCertificate,
   subscribeToExams, 
   getQuestions, 
   ExamRecord, 
@@ -17,7 +18,7 @@ import { StudentInfo } from '../../../types';
 import { PenTool, Lock, AlertCircle, Clock, CheckCircle2, ShieldAlert, Award, FileText } from 'lucide-react';
 
 export default function ExamsPage() {
-  const { trainee } = useStudent();
+  const { user, trainee } = useStudent();
   const [isExamOpen, setIsExamOpen] = useState(false);
   const [loading, setLoading] = useState(true);
   
@@ -35,10 +36,10 @@ export default function ExamsPage() {
     let unsubscribe = () => {};
     
     async function loadSettings() {
-      if (!trainee) return;
+      if (!trainee && !user) return;
       
       const unsubSettings = subscribeToGlobalSettings((settings) => {
-        const rawCourse = trainee.course || trainee.program || 'web-development';
+        const rawCourse = trainee?.course || trainee?.program || 'web-development';
         const normalizedCourse = rawCourse.toLowerCase().replace(/\s+/g, '-');
         
         const isOpen = settings.openPrograms?.[normalizedCourse] 
@@ -53,10 +54,11 @@ export default function ExamsPage() {
         unsubSettings();
       };
 
+      const effectiveUid = trainee?.uid || user?.uid;
       const unsubExams = subscribeToExams((myExams) => {
         setPastExams(myExams);
         setLoading(false);
-      }, trainee.uid);
+      }, effectiveUid);
       
       const previousUnsubscribe = unsubscribe;
       unsubscribe = () => {
@@ -67,23 +69,26 @@ export default function ExamsPage() {
     
     loadSettings();
     return () => unsubscribe();
-  }, [trainee]);
+  }, [trainee, user]);
 
   const rawCourse = trainee ? (trainee.course || trainee.program || 'web-development') : 'web-development';
   const normalizedCourse = rawCourse.toLowerCase().replace(/\s+/g, '-');
 
   // Check if student has already completed an exam for this program
-  const completedExamRecord = pastExams.find(
-    (e) => e.examId === normalizedCourse || e.examId === rawCourse
-  );
+  const completedExamRecord = pastExams.find((e) => {
+    if (!e || !e.examId) return false;
+    const norm = e.examId.toLowerCase().replace(/\s+/g, '-');
+    return norm === normalizedCourse || norm === rawCourse.toLowerCase().replace(/\s+/g, '-');
+  });
   const hasAlreadyCompleted = Boolean(completedExamRecord);
 
-  const studentInfo: StudentInfo | null = trainee ? {
-    uid: trainee.uid,
-    fullName: `${trainee.firstName} ${trainee.lastName}`,
-    email: trainee.email,
-    phone: trainee.phone,
-    school: trainee.school,
+  const effectiveTraineeUid = trainee?.uid || user?.uid || '';
+  const studentInfo: StudentInfo | null = (trainee || user) ? {
+    uid: effectiveTraineeUid,
+    fullName: trainee ? `${trainee.firstName} ${trainee.lastName}` : (user?.displayName || 'Student'),
+    email: trainee?.email || user?.email || '',
+    phone: trainee?.phone || '',
+    school: trainee?.school || '',
     course: normalizedCourse as 'graphic-design' | 'web-development'
   } : null;
 
@@ -98,66 +103,88 @@ export default function ExamsPage() {
   const handleExamSubmit = async (
     submittedAnswers: Record<string, 'A' | 'B' | 'C' | 'D'>, 
     finalSeconds: number,
-    audit?: ExamMetaAudit
+    audit?: ExamMetaAudit,
+    activeQuestions?: QuestionData[]
   ) => {
-    setIsExamStarted(false);
-    setIsExamCompleted(true);
+    const effectiveUid = trainee?.uid || user?.uid;
+    if (!effectiveUid || !studentInfo) {
+      console.error("No student profile or trainee UID found during submission.");
+      alert("Error: Unable to identify student account. Please log in again.");
+      return;
+    }
+
+    // 1. Use the active questions array that the student actually took
+    let questions = (activeQuestions && activeQuestions.length > 0) ? activeQuestions : examQuestions;
+    if (questions.length === 0) {
+      try {
+        questions = await getQuestions(studentInfo.course);
+      } catch (err) {
+        console.error("Error fetching questions for grading:", err);
+      }
+    }
+    setExamQuestions(questions);
+
+    let correctCount = 0;
+    questions.forEach((q) => {
+      if (submittedAnswers[q.id] === q.correctAnswer) {
+        correctCount++;
+      }
+    });
+    
+    const total = questions.length > 0 ? questions.length : 1;
+    const percentage = Math.round((correctCount / total) * 100);
+    setScore(percentage);
     setExamAnswers(submittedAnswers);
     setExamElapsedSeconds(finalSeconds);
     setExamAudit(audit);
 
-    if (trainee && studentInfo) {
-      const questions = await getQuestions(studentInfo.course);
-      setExamQuestions(questions);
-      
-      let correctCount = 0;
-      questions.forEach((q) => {
-        if (submittedAnswers[q.id] === q.correctAnswer) {
-          correctCount++;
-        }
-      });
-      
-      const total = questions.length > 0 ? questions.length : 1;
-      const percentage = Math.round((correctCount / total) * 100);
-      setScore(percentage);
+    const newRecord: ExamRecord = {
+      traineeId: effectiveUid,
+      examId: studentInfo.course,
+      score: percentage,
+      totalQuestions: questions.length,
+      completedAt: new Date().toISOString(),
+      timeSpentSeconds: finalSeconds,
+      violationsCount: audit?.violationsCount || 0,
+      autoSubmitted: audit?.autoSubmitted || false,
+      reason: audit?.reason || (audit?.autoSubmitted ? "Auto-submitted by proctoring engine" : "Normal Submission")
+    };
 
-      try {
-        await saveExamScore({
-          traineeId: trainee.uid,
+    // Immediately lock out further attempts in local state
+    setPastExams((prev) => {
+      const filtered = prev.filter(e => e.examId !== studentInfo.course);
+      return [newRecord, ...filtered];
+    });
+
+    try {
+      await saveExamScore(newRecord);
+
+      if (percentage >= 70) {
+        const courseCode = studentInfo.course.toUpperCase();
+        const cleanName = studentInfo.fullName.replace(/\s+/g, '').substring(0, 4).toUpperCase();
+        const timestamp = Math.floor(Date.now() / 1000).toString().slice(-4);
+        const certificateId = `TE-${courseCode}-2026-${cleanName}-${timestamp}`;
+
+        await saveCertificate({
+          traineeId: effectiveUid,
           examId: studentInfo.course,
+          course: studentInfo.course,
           score: percentage,
+          correctCount,
           totalQuestions: questions.length,
-          completedAt: new Date().toISOString(),
-          timeSpentSeconds: finalSeconds,
-          violationsCount: audit?.violationsCount || 0,
-          autoSubmitted: audit?.autoSubmitted || false,
-          reason: audit?.reason || "Normal Submission"
+          elapsedSeconds: finalSeconds,
+          issueDate: new Date().toISOString(),
+          status: 'pending',
+          certificateId
         });
-
-        if (percentage >= 70) {
-          const courseCode = studentInfo.course.toUpperCase();
-          const cleanName = studentInfo.fullName.replace(/\s+/g, '').substring(0, 4).toUpperCase();
-          const timestamp = Math.floor(Date.now() / 1000).toString().slice(-4);
-          const certificateId = `TE-${courseCode}-2026-${cleanName}-${timestamp}`;
-
-          const { saveCertificate } = await import('@techinejigbo/firebase/src/firestore');
-          await saveCertificate({
-            traineeId: trainee.uid,
-            examId: studentInfo.course,
-            course: studentInfo.course,
-            score: percentage,
-            correctCount,
-            totalQuestions: questions.length,
-            elapsedSeconds: finalSeconds,
-            issueDate: new Date().toISOString(),
-            status: 'pending',
-            certificateId
-          });
-        }
-      } catch (err) {
-        console.error("Failed to save exam score or certificate to Firestore:", err);
       }
+    } catch (err: any) {
+      console.error("Failed to save exam score or certificate to Firestore:", err);
+      alert(`Note: Submission processed. (${err?.message || 'Archived locally'})`);
     }
+
+    setIsExamStarted(false);
+    setIsExamCompleted(true);
   };
 
   if (loading) {

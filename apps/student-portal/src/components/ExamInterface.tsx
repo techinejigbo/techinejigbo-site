@@ -35,7 +35,8 @@ interface ExamInterfaceProps {
   onSubmit: (
     answers: Record<string, 'A' | 'B' | 'C' | 'D'>, 
     elapsedSeconds: number,
-    audit?: ExamMetaAudit
+    audit?: ExamMetaAudit,
+    activeQuestions?: QuestionData[]
   ) => void;
   examDurationMinutes?: number;
 }
@@ -180,8 +181,8 @@ export default function ExamInterface({
       autoSubmitted: isAuto,
       reason,
       timeSpentSeconds: elapsedSecondsRef.current
-    });
-  }, [isSubmitting, onSubmit, storageKey]);
+    }, questions);
+  }, [isSubmitting, onSubmit, storageKey, questions]);
 
   // 3. Countdown & Session Persistence Timer
   useEffect(() => {

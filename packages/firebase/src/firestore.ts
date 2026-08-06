@@ -339,7 +339,8 @@ export const getTraineeData = async (uid: string) => {
     const docRef = doc(db, 'trainees', uid);
     const docSnap = await getDoc(docRef);
     if (docSnap.exists()) {
-      return docSnap.data() as TraineeData;
+      const data = docSnap.data() as TraineeData;
+      return { ...data, uid: data.uid || docSnap.id };
     } else {
       return null;
     }
@@ -380,15 +381,22 @@ export const saveExamScore = async (examData: ExamRecord) => {
     // Generate a deterministic ID based on trainee and exam course to enforce single submission
     const docId = examData.id || `${examData.traineeId}_${examData.examId}`;
     const docRef = doc(db, 'exams', docId);
-    
-    // Check if exam already exists to prevent duplicate writes
-    const existing = await getDoc(docRef);
-    if (existing.exists()) {
-      throw new Error("This assessment has already been completed and submitted.");
-    }
 
-    await setDoc(docRef, { ...examData, id: docId });
-    return { success: true, id: docId };
+    const record: ExamRecord = {
+      id: docId,
+      traineeId: examData.traineeId,
+      examId: examData.examId,
+      score: examData.score,
+      totalQuestions: examData.totalQuestions,
+      completedAt: examData.completedAt || new Date().toISOString(),
+      timeSpentSeconds: examData.timeSpentSeconds ?? 0,
+      violationsCount: examData.violationsCount ?? 0,
+      autoSubmitted: examData.autoSubmitted ?? false,
+      reason: examData.reason ?? 'Normal Submission'
+    };
+
+    await setDoc(docRef, record);
+    return { success: true, id: docId, record };
   } catch (error) {
     console.error("Error saving exam score:", error);
     throw error;

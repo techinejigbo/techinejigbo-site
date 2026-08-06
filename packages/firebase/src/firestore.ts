@@ -86,7 +86,9 @@ export interface ExamRecord {
   traineeId: string;
   examId: string;
   score: number;
+  correctCount?: number;
   totalQuestions: number;
+  answers?: Record<string, string>;
   completedAt: string;
   timeSpentSeconds?: number;
   violationsCount?: number;
@@ -387,7 +389,9 @@ export const saveExamScore = async (examData: ExamRecord) => {
       traineeId: examData.traineeId,
       examId: examData.examId,
       score: examData.score,
+      correctCount: examData.correctCount ?? Math.round((examData.score / 100) * (examData.totalQuestions || 50)),
       totalQuestions: examData.totalQuestions,
+      answers: examData.answers ?? {},
       completedAt: examData.completedAt || new Date().toISOString(),
       timeSpentSeconds: examData.timeSpentSeconds ?? 0,
       violationsCount: examData.violationsCount ?? 0,
@@ -417,6 +421,28 @@ export const hasStudentCompletedExam = async (traineeId: string, examId: string)
   } catch (error) {
     console.error("Error checking completed exam status:", error);
     return false;
+  }
+};
+
+export const updateExamScore = async (id: string, updates: Partial<ExamRecord>) => {
+  try {
+    const docRef = doc(db, 'exams', id);
+    await updateDoc(docRef, updates);
+    return { success: true };
+  } catch (error) {
+    console.error("Error updating exam score:", error);
+    throw error;
+  }
+};
+
+export const deleteExamRecord = async (id: string) => {
+  try {
+    const docRef = doc(db, 'exams', id);
+    await deleteDoc(docRef);
+    return { success: true };
+  } catch (error) {
+    console.error("Error deleting exam record:", error);
+    throw error;
   }
 };
 

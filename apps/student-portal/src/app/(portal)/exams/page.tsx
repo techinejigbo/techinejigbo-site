@@ -126,7 +126,8 @@ export default function ExamsPage() {
 
     let correctCount = 0;
     questions.forEach((q) => {
-      if (submittedAnswers[q.id] === q.correctAnswer) {
+      const studentAns = submittedAnswers[q.id];
+      if (studentAns && q.correctAnswer && String(studentAns).trim().toUpperCase() === String(q.correctAnswer).trim().toUpperCase()) {
         correctCount++;
       }
     });
@@ -142,7 +143,9 @@ export default function ExamsPage() {
       traineeId: effectiveUid,
       examId: studentInfo.course,
       score: percentage,
+      correctCount: correctCount,
       totalQuestions: questions.length,
+      answers: submittedAnswers,
       completedAt: new Date().toISOString(),
       timeSpentSeconds: finalSeconds,
       violationsCount: audit?.violationsCount || 0,

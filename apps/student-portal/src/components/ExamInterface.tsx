@@ -123,32 +123,8 @@ export default function ExamInterface({
           }
         }
 
-        // Fresh session: Randomize questions and their options
-        const shuffledQuestions = shuffleArray(rawQuestions).map((q) => {
-          const optionKeys: Array<'A' | 'B' | 'C' | 'D'> = ['A', 'B', 'C', 'D'];
-          const optionEntries = optionKeys.map((k) => ({
-            originalKey: k,
-            text: q.options[k],
-            isCorrect: q.correctAnswer === k
-          }));
-
-          const shuffledEntries = shuffleArray(optionEntries);
-          const newOptions: Record<'A' | 'B' | 'C' | 'D', string> = {
-            A: shuffledEntries[0].text,
-            B: shuffledEntries[1].text,
-            C: shuffledEntries[2].text,
-            D: shuffledEntries[3].text,
-          };
-
-          const newCorrectKey = optionKeys[shuffledEntries.findIndex(e => e.isCorrect)] || 'A';
-
-          return {
-            ...q,
-            options: newOptions,
-            correctAnswer: newCorrectKey
-          };
-        });
-
+        // Fresh session: Randomize question order, but keep options A, B, C, D canonical and intact
+        const shuffledQuestions = shuffleArray(rawQuestions);
         setQuestions(shuffledQuestions);
       } catch (err) {
         console.error("Error loading exam questions:", err);

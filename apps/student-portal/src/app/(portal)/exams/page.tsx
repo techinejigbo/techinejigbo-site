@@ -162,7 +162,7 @@ export default function ExamsPage() {
     try {
       await saveExamScore(newRecord);
 
-      if (percentage >= 70) {
+      if (percentage >= 50) {
         const courseCode = studentInfo.course.toUpperCase();
         const cleanName = studentInfo.fullName.replace(/\s+/g, '').substring(0, 4).toUpperCase();
         const timestamp = Math.floor(Date.now() / 1000).toString().slice(-4);
@@ -262,8 +262,8 @@ export default function ExamsPage() {
             <div className="inline-flex flex-wrap items-center justify-center gap-4 bg-slate-50 border border-slate-200 p-4 rounded-xl text-xs font-mono mb-6">
               <div>
                 <span className="text-slate-400 uppercase text-[10px] block font-bold">Your Score</span>
-                <span className={`text-base font-black ${completedExamRecord.score >= 70 ? 'text-emerald-600' : 'text-rose-600'}`}>
-                  {completedExamRecord.score}% ({completedExamRecord.score >= 70 ? 'Passed' : 'Completed'})
+                <span className={`text-base font-black ${completedExamRecord.score >= 50 ? 'text-emerald-600' : 'text-rose-600'}`}>
+                  {completedExamRecord.score}% ({completedExamRecord.score >= 50 ? 'Passed' : 'Completed'})
                 </span>
               </div>
               <div className="h-8 w-px bg-slate-200 hidden sm:block" />
@@ -282,8 +282,8 @@ export default function ExamsPage() {
               <div className="h-8 w-px bg-slate-200 hidden sm:block" />
               <div>
                 <span className="text-slate-400 uppercase text-[10px] block font-bold">Certificate Status</span>
-                <span className={`font-bold ${completedExamRecord.score >= 70 ? 'text-emerald-600' : 'text-slate-500'}`}>
-                  {completedExamRecord.score >= 70 ? 'Verified / Pending Admin' : 'Not Eligible (<70%)'}
+                <span className={`font-bold ${completedExamRecord.score >= 50 ? 'text-emerald-600' : 'text-slate-500'}`}>
+                  {completedExamRecord.score >= 50 ? 'Verified / Pending Admin' : 'Not Eligible (<50%)'}
                 </span>
               </div>
             </div>
@@ -388,12 +388,12 @@ export default function ExamsPage() {
                   )}
                   <div>
                     <div className={`inline-flex px-3 py-1 rounded-full text-xs font-mono font-bold ${
-                      exam.score >= 70 ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-rose-50 text-rose-700 border border-rose-200'
+                      exam.score >= 50 ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-rose-50 text-rose-700 border border-rose-200'
                     }`}>
                       Score: {exam.score}%
                     </div>
                     <p className="text-[11px] font-mono font-bold text-slate-500 mt-1">
-                      {exam.score >= 70 ? 'Passed (≥70%)' : 'Below Pass Mark'}
+                      {exam.score >= 50 ? 'Passed (≥50%)' : 'Below Pass Mark'}
                     </p>
                   </div>
                 </div>

@@ -467,7 +467,7 @@ export default function ExamInterface({
               </div>
               <div className="flex justify-between border-b border-slate-700/50 pb-2">
                 <span className="text-slate-400">Questions / Pass Mark:</span>
-                <span className="text-white font-bold">{totalQuestions} Questions (70% to Pass)</span>
+                <span className="text-white font-bold">{totalQuestions} Questions (50% to Pass)</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-slate-400">Allocated Time:</span>

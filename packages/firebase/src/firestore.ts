@@ -250,8 +250,8 @@ export const backfillMissingCertificates = async () => {
       const exam = docSnap.data() as ExamRecord;
       const key = `${exam.traineeId}_${exam.examId}`;
       
-      // If score is >= 70 and no certificate exists yet
-      if (exam.score >= 70 && !existingCerts.has(key)) {
+      // If score is >= 50 and no certificate exists yet
+      if (exam.score >= 50 && !existingCerts.has(key)) {
         // Generate certificateId
         const traineeData = await getTraineeData(exam.traineeId);
         if (!traineeData) continue;

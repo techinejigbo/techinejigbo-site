@@ -208,8 +208,8 @@ export default function TraineesPage() {
 
         if (examFilter === 'completed' && !bestExam) return false;
         if (examFilter === 'not-taken' && bestExam) return false;
-        if (examFilter === 'passed' && (!bestExam || bestExam.score < 70)) return false;
-        if (examFilter === 'failed' && (!bestExam || bestExam.score >= 70)) return false;
+        if (examFilter === 'passed' && (!bestExam || bestExam.score < 50)) return false;
+        if (examFilter === 'failed' && (!bestExam || bestExam.score >= 50)) return false;
       }
 
       return true;
@@ -538,8 +538,8 @@ export default function TraineesPage() {
                 <option value="all">All Exam Records</option>
                 <option value="completed">Exam Completed</option>
                 <option value="not-taken">Exam Not Taken</option>
-                <option value="passed">Passed (Score ≥ 70%)</option>
-                <option value="failed">Failed (Score &lt; 70%)</option>
+                <option value="passed">Passed (Score ≥ 50%)</option>
+                <option value="failed">Failed (Score &lt; 50%)</option>
               </select>
             </div>
 
@@ -711,13 +711,13 @@ export default function TraineesPage() {
                       <td className="px-6 py-4 font-mono font-bold">
                         {bestExam ? (
                           <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs ${
-                            bestExam.score >= 70 
+                            bestExam.score >= 50 
                               ? "bg-emerald-50 text-emerald-700 border border-emerald-200" 
                               : "bg-rose-50 text-rose-700 border border-rose-200"
                           }`}>
                             {bestExam.score}%
                             <span className="text-[10px] font-normal opacity-80">
-                              ({bestExam.score >= 70 ? 'Passed' : 'Failed'})
+                              ({bestExam.score >= 50 ? 'Passed' : 'Failed'})
                             </span>
                           </span>
                         ) : (

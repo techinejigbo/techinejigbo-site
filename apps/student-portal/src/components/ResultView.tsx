@@ -52,7 +52,7 @@ export default function ResultView({
 
   const totalQuestions = questions.length || 50;
   const percentage = Math.round((correctCount / totalQuestions) * 100);
-  const isPassed = percentage >= 70;
+  const isPassed = percentage >= 50;
 
   const handlePrint = () => {
     window.print();
@@ -166,7 +166,7 @@ export default function ResultView({
               <div>
                 <span className="text-slate-400 block font-bold uppercase text-[9px] tracking-wider">Status</span>
                 <span className={`font-bold text-sm ${isPassed ? 'text-emerald-600' : 'text-rose-600'}`}>
-                  {isPassed ? 'Passed (≥70%)' : 'Below Pass Mark'}
+                  {isPassed ? 'Passed (≥50%)' : 'Below Pass Mark'}
                 </span>
               </div>
               <div>

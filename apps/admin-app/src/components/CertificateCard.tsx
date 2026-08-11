@@ -53,13 +53,27 @@ export default function CertificateCard({
       });
       
       const imgData = canvas.toDataURL('image/jpeg', 1.0);
-      const pdf = new jsPDF({
-        orientation: 'landscape',
-        unit: 'px',
-        format: [canvas.width, canvas.height]
-      });
+      const pdf = new jsPDF('landscape', 'mm', 'a4');
       
-      pdf.addImage(imgData, 'JPEG', 0, 0, canvas.width, canvas.height);
+      const pdfWidth = pdf.internal.pageSize.getWidth();
+      const pdfHeight = pdf.internal.pageSize.getHeight();
+      
+      // Calculate scaled height to maintain aspect ratio
+      const imgRatio = canvas.height / canvas.width;
+      let printWidth = pdfWidth;
+      let printHeight = pdfWidth * imgRatio;
+      
+      // If the scaled height exceeds the page height, scale by height instead
+      if (printHeight > pdfHeight) {
+        printHeight = pdfHeight;
+        printWidth = pdfHeight / imgRatio;
+      }
+      
+      // Center the image on the page
+      const x = (pdfWidth - printWidth) / 2;
+      const y = (pdfHeight - printHeight) / 2;
+      
+      pdf.addImage(imgData, 'JPEG', x, y, printWidth, printHeight);
       pdf.save(`Certificate_${studentName.replace(/\s+/g, '_')}_${course}.pdf`);
     } catch (error) {
       console.error('Failed to generate PDF', error);
@@ -116,7 +130,7 @@ export default function CertificateCard({
         <div 
           id="printable-certificate"
           ref={certificateRef}
-          className="print-card min-w-[720px] max-w-[960px] mx-auto bg-[#FDFCF7] text-[#18181B] p-8 sm:p-12 md:p-16 border-[12px] border-double border-[#C4953C] rounded-2xl relative shadow-[0_10px_15px_-3px_rgba(0,0,0,0.1)] text-center font-sans select-none"
+          className="print-card w-[1123px] max-w-none shrink-0 mx-auto bg-[#FDFCF7] text-[#18181B] p-8 sm:p-12 md:p-16 border-[12px] border-double border-[#C4953C] rounded-2xl relative shadow-[0_10px_15px_-3px_rgba(0,0,0,0.1)] text-center font-sans select-none"
         >
           {/* Fancy watermark background */}
           <div className="absolute inset-4 border border-[#E4E4E7] pointer-events-none rounded" />

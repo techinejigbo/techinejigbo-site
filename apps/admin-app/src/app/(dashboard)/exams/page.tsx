@@ -157,8 +157,8 @@ export default function ExamsPage() {
         correctCount: newCorrectInput
       });
 
-      // If passing score (>=70%), automatically generate / update certificate record
-      if (newScoreInput >= 70) {
+      // If passing score (>=50%), automatically generate / update certificate record
+      if (newScoreInput >= 50) {
         const trainee = trainees[editingExam.traineeId];
         const studentName = trainee ? `${trainee.firstName} ${trainee.lastName}` : 'Candidate';
         const cleanName = studentName.toUpperCase().replace(/[^A-Z]/g, '').slice(0, 3) || 'CAN';
@@ -305,7 +305,7 @@ export default function ExamsPage() {
               ) : (
                 paginatedExams.map(exam => {
                   const trainee = trainees[exam.traineeId];
-                  const passed = exam.score >= 70;
+                  const passed = exam.score >= 50;
                   const docId = exam.id || `${exam.traineeId}_${exam.examId}`;
                   
                   return (
@@ -441,7 +441,7 @@ export default function ExamsPage() {
                   Total Exam Questions: <strong className="text-slate-800">{editingExam.totalQuestions || 50} questions</strong>
                 </div>
                 <div className="text-slate-500 font-mono">
-                  Current Score: <strong className={editingExam.score >= 70 ? 'text-emerald-600' : 'text-rose-600'}>{editingExam.score}%</strong>
+                  Current Score: <strong className={editingExam.score >= 50 ? 'text-emerald-600' : 'text-rose-600'}>{editingExam.score}%</strong>
                 </div>
               </div>
 
@@ -484,7 +484,7 @@ export default function ExamsPage() {
                   <span className="absolute right-4 top-1/2 -translate-y-1/2 font-mono font-bold text-slate-400">%</span>
                 </div>
                 <p className="text-[11px] text-slate-400 mt-1">
-                  70% or above qualifies candidate for an automated certificate.
+                  50% or above qualifies candidate for an automated certificate.
                 </p>
               </div>
 

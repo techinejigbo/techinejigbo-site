@@ -27,7 +27,7 @@ export default function DashboardOverview() {
   }, []);
 
   const activeTrainees = trainees.filter(t => t.status !== 'suspended').length;
-  const passedExams = exams.filter(e => e.score >= 70).length;
+  const passedExams = exams.filter(e => e.score >= 50).length;
   const totalDonations = donations
     .filter(d => d.status === 'success')
     .reduce((sum, d) => sum + (Number(d.amount) || 0), 0);

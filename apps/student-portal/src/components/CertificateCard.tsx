@@ -53,27 +53,13 @@ export default function CertificateCard({
       });
       
       const imgData = canvas.toDataURL('image/jpeg', 1.0);
-      const pdf = new jsPDF('landscape', 'mm', 'a4');
+      const pdf = new jsPDF({
+        orientation: 'landscape',
+        unit: 'px',
+        format: [canvas.width, canvas.height]
+      });
       
-      const pdfWidth = pdf.internal.pageSize.getWidth();
-      const pdfHeight = pdf.internal.pageSize.getHeight();
-      
-      // Calculate scaled height to maintain aspect ratio
-      const imgRatio = canvas.height / canvas.width;
-      let printWidth = pdfWidth;
-      let printHeight = pdfWidth * imgRatio;
-      
-      // If the scaled height exceeds the page height, scale by height instead
-      if (printHeight > pdfHeight) {
-        printHeight = pdfHeight;
-        printWidth = pdfHeight / imgRatio;
-      }
-      
-      // Center the image on the page
-      const x = (pdfWidth - printWidth) / 2;
-      const y = (pdfHeight - printHeight) / 2;
-      
-      pdf.addImage(imgData, 'JPEG', x, y, printWidth, printHeight);
+      pdf.addImage(imgData, 'JPEG', 0, 0, canvas.width, canvas.height);
       pdf.save(`Certificate_${studentName.replace(/\s+/g, '_')}_${course}.pdf`);
     } catch (error) {
       console.error('Failed to generate PDF', error);

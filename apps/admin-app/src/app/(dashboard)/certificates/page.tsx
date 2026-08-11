@@ -60,6 +60,29 @@ export default function CertificatesPage() {
     }
   };
 
+  const handleApproveAll = async () => {
+    const pendingCerts = certificates.filter(c => c.status === 'pending');
+    if (pendingCerts.length === 0) {
+      toast.success('No pending certificates to approve');
+      return;
+    }
+    
+    setIsApproving(true);
+    const loadingToast = toast.loading(`Approving ${pendingCerts.length} certificates...`);
+    
+    try {
+      await Promise.all(pendingCerts.map(cert => updateCertificateStatus(cert.id!, 'approved')));
+      toast.dismiss(loadingToast);
+      toast.success(`Successfully approved ${pendingCerts.length} certificates`);
+    } catch (error) {
+      console.error(error);
+      toast.dismiss(loadingToast);
+      toast.error('Failed to approve all certificates');
+    } finally {
+      setIsApproving(false);
+    }
+  };
+
   const handleBackfill = async () => {
     setIsBackfilling(true);
     const loadingToast = toast.loading('Checking for missing certificates...');
@@ -93,7 +116,15 @@ export default function CertificatesPage() {
           <p className="text-slate-500 text-sm mt-1">Manage and approve trainee certificates</p>
         </div>
         
-        <div className="flex items-center gap-3">
+        <div className="flex flex-wrap items-center gap-3">
+          <button
+            onClick={handleApproveAll}
+            disabled={isApproving || certificates.filter(c => c.status === 'pending').length === 0}
+            className="px-4 py-2 bg-emerald-600 text-white text-sm font-semibold rounded-lg hover:bg-emerald-700 transition-colors disabled:opacity-50 flex items-center gap-2"
+          >
+            <CheckCircle size={16} />
+            {isApproving ? 'Approving...' : 'Approve All Pending'}
+          </button>
           <button
             onClick={handleBackfill}
             disabled={isBackfilling}
